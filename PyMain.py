@@ -27,17 +27,19 @@ class PyMain(object):
         self.__screen.fill(eval(self.__jsondata['BackgroundColor']))
 
         self.__menus = self.__jsondata['Menus']
-        self.__labelWidth = self.__screen.get_width() / len(self.__menus)
-        self.__labels = [Label(self.__labelWidth, 40, eval(i['color']), i['name']) for i in self.__menus]
+        self.__submenus = None
+        self.__menuLabelWidth = (self.__screen.get_width() - len(self.__menus)) / len(self.__menus)
+        self.__menuLabels = [Label(self.__menuLabelWidth, 40, eval(i['color']), eval(i['fontColor']), i['name']) for i in self.__menus]
         self.__currentMenu = 0
 
         self.setSelected(self.__currentMenu)
+
         print "Using driver : " + pygame.display.get_driver()
 
     def redraw(self):
-        for i, label in enumerate(self.__labels):
+        for i, label in enumerate(self.__menuLabels):
             label.redraw()
-            self.__screen.blit(label, label.get_rect(x=i * self.__labelWidth))
+            self.__screen.blit(label, label.get_rect(x=i * self.__menuLabelWidth + i))
         pygame.display.flip()
 
     def getScreen(self):
@@ -68,8 +70,9 @@ class PyMain(object):
         return self.__assets[key]
 
     def setSelected(self, menuIndex):
-        [i.setSelected(False) for i in self.__labels]
-        self.__labels[menuIndex].setSelected(True)
+        [i.setSelected(False) for i in self.__menuLabels]
+        self.__menuLabels[menuIndex].setSelected(True)
+        self.__submenus = self.__menus[menuIndex]['entries']
         self.redraw()
 
     def loop(self):
