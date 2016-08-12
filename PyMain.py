@@ -28,13 +28,15 @@ class PyMain(object):
 
         self.__menus = self.__jsondata['Menus']
         self.__labelWidth = self.__screen.get_width() / len(self.__menus)
+        self.__labels = [Label(self.__labelWidth, 40, eval(i['color']), i['name']) for i in self.__menus]
+        self.__currentMenu = 0
 
-        self.redraw()
+        self.setSelected(self.__currentMenu)
         print "Using driver : " + pygame.display.get_driver()
 
     def redraw(self):
-        for i, menu in enumerate(self.__menus):
-            label = Label(self.__labelWidth, 40, eval(menu['color']), menu['name'])
+        for i, label in enumerate(self.__labels):
+            label.redraw()
             self.__screen.blit(label, label.get_rect(x=i * self.__labelWidth))
         pygame.display.flip()
 
@@ -65,8 +67,30 @@ class PyMain(object):
     def get_asset(self, key):
         return self.__assets[key]
 
+    def setSelected(self, menuIndex):
+        [i.setSelected(False) for i in self.__labels]
+        self.__labels[menuIndex].setSelected(True)
+        self.redraw()
+
     def loop(self):
         while 1:
             for event in pygame.event.get():
+
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_ESCAPE:
+                        sys.exit(0)
+                    elif event.key == pygame.K_LEFT:
+                        self.__currentMenu = (self.__currentMenu - 1) % len(self.__menus)
+                        self.setSelected(self.__currentMenu)
+                    elif event.key == pygame.K_RIGHT:
+                        self.__currentMenu = (self.__currentMenu + 1) % len(self.__menus)
+                        self.setSelected(self.__currentMenu)
+                    elif event.key == pygame.K_UP:
+                        pass
+                    elif event.key == pygame.K_DOWN:
+                        pass
+                    elif event.key == pygame.K_RETURN:
+                        pass
+
                 if event.type == pygame.QUIT:
                     sys.exit(0)
