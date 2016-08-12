@@ -1,0 +1,17 @@
+{
+  "BackgroundColor":"(100,100,100)",
+  "Menus": [
+    {
+      "name":"Multimedia",
+      "color":"(0,0,255)"
+    },
+    {
+      "name":"Games",
+      "color":"(0,255,0)"
+    },
+    {
+      "name":"Other",
+      "color":"(255,0,0)"
+    }
+  ]
+}
