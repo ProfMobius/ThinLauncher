@@ -1,5 +1,7 @@
 import os, sys
 import json
+import tempfile
+
 import pygame
 import sys
 from pygame.locals import *
@@ -13,11 +15,9 @@ if not pygame.mixer:
 
 
 class PyMain(object):
-    def __init__(self, width, height, jsonfilename):
+    def __init__(self, jsonfilename):
         pygame.init()
-        self.width = width
-        self.height = height
-        self.screen = pygame.display.set_mode((self.width, self.height), SRCALPHA)
+        self.screen = pygame.display.set_mode()
         # self.__background = pygame.Surface(self.__screen.get_size()).convert()
         # self.__foreground = pygame.Surface(self.__screen.get_size()).convert()
 
@@ -26,7 +26,7 @@ class PyMain(object):
         self.backgroundColor = eval(self.jsondata['backgroundColor'])
         if 'backgroundImage' in self.jsondata:
             self.backgroundImage = self.load_image('bgimage', self.jsondata['backgroundImage'])
-            self.backgroundImage = pygame.transform.smoothscale(self.backgroundImage, (self.width, self.height))
+            self.backgroundImage = pygame.transform.smoothscale(self.backgroundImage, (self.screen.get_width(), self.screen.get_height()))
         else:
             self.backgroundImage = None
 
@@ -111,9 +111,17 @@ class PyMain(object):
                     elif event.key == pygame.K_DOWN:
                         self.setSelectedEntry((self.currentEntry + 1) % len(self.entries))
                     elif event.key == pygame.K_RETURN:
-                        sys.exit(self.menus[self.currentMenu]['entries'][self.currentEntry]['return'])
+                        entry = self.menus[self.currentMenu]['entries'][self.currentEntry]
+                        ff = open(os.path.join(tempfile.gettempdir(), 'thinlauncher.tmp'), 'wb')
+                        ff.write(entry['command'])
+                        ff.close()
+                        print "Launching %s with command %d"%(entry['name'], entry['command'])
+                        sys.exit(0)
 
                 if event.type == pygame.QUIT:
+                    ff = open(os.path.join(tempfile.gettempdir(), 'thinlauncher.tmp'), 'wb')
+                    ff.write("")
+                    ff.close()
                     sys.exit(0)
 
     def load_image(self, key, filename, colorkey=None):

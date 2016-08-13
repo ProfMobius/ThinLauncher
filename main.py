@@ -9,7 +9,7 @@ from Label import Label
 
 
 def main():
-    pyMain = PyMain(1280, 720, "menu.json")
+    pyMain = PyMain("menu.json")
     pyMain.loop()
 
 

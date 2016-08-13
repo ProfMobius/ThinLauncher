@@ -15,7 +15,6 @@
           "fontColorUnselected": "(0,0,0)",
           "colorSelected": "(255,255,176,255)",
           "fontColorSelected": "(0,0,0)",
-          "return": 64,
           "command": "/usr/bin/kodi-standalone"
         },
         {
@@ -24,7 +23,6 @@
           "fontColorUnselected": "(0,0,0)",
           "colorSelected": "(255,255,176,255)",
           "fontColorSelected": "(0,0,0)",
-          "return": 65,
           "command": "/usr/bin/vlc"
         }
       ]
@@ -42,7 +40,6 @@
           "fontColorUnselected": "(0,0,0)",
           "colorSelected": "(204,236,239,255)",
           "fontColorSelected": "(0,0,0)",
-          "return": 66,
           "command": "/usr/bin/retroarch"
         },
         {
@@ -51,7 +48,6 @@
           "fontColorUnselected": "(0,0,0)",
           "colorSelected": "(204,236,239,255)",
           "fontColorSelected": "(0,0,0)",
-          "return": 67,
           "command": "/usr/bin/retroarch"
         }
       ]
@@ -68,8 +64,7 @@
           "colorUnselected": "(224,243,176,150)",
           "fontColorUnselected": "(0,0,0)",
           "colorSelected": "(224,243,176,255)",
-          "fontColorSelected": "(0,0,0)",
-          "return": 68
+          "fontColorSelected": "(0,0,0)"
         }
       ]
     }
