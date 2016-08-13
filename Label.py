@@ -3,14 +3,16 @@ from pygame.rect import Rect
 
 
 class Label(pygame.Surface):
-    def __init__(self, width, height, color, fontColor, text):
-        super(Label, self).__init__((width, height))
+    def __init__(self, width, height, colorUnselected, fontColorUnselected, colorSelected, fontSelected, text):
+        super(Label, self).__init__((width, height), pygame.SRCALPHA)
 
         self.__selected = False
         self.__width = width
         self.__height = height
-        self.__color = color
-        self.__fontColor = fontColor
+        self.__colorUnselected = colorUnselected
+        self.__fontColorUnselected = fontColorUnselected
+        self.__colorSelected = colorSelected
+        self.__fontColorSelected = fontSelected
         self.__font = pygame.font.Font(None, 36)
         self.__text = text
         self.__textRender = None
@@ -24,9 +26,16 @@ class Label(pygame.Surface):
         return self, self.get_rect()
 
     def redraw(self):
-        self.fill(self.__color)
-        self.__textRender = self.__font.render(self.__text, 1, self.__fontColor)
+        if self.__selected:
+            color = self.__colorSelected
+            fontColor = self.__fontColorSelected
+        else:
+            color = self.__colorUnselected
+            fontColor = self.__fontColorUnselected
+
+        self.fill(color)
+        self.__textRender = self.__font.render(self.__text, 1, fontColor)
         self.__textPos = self.__textRender.get_rect(centerx=self.__width / 2, centery=self.__height / 2)
         self.blit(self.__textRender, self.__textPos)
         if self.__selected:
-            pygame.draw.rect(self, (0, 0, 0), Rect(0, self.__height - 5, 50, 5))
+            pygame.draw.rect(self, (0, 0, 0), Rect(0, self.__height - 2, self.__width, 2))

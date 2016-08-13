@@ -10,11 +10,6 @@ from Label import Label
 
 def main():
     pyMain = PyMain(1280, 720, "menu.json")
-
-    # label = Label(250, 40, (255, 0, 0), "Test")
-    # pyMain.getScreen().blit(label, label.get_rect())
-
-    pyMain.load_image("cursor", "mouse_cursor.png")
     pyMain.loop()
 
 

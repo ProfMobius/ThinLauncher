@@ -1,53 +1,74 @@
 {
-  "BackgroundColor": "(100,100,100)",
-  "Menus": [
+  "backgroundColor": "(100,100,100)",
+  "backgroundImage": "blue-circuit-board.png",
+  "menus": [
     {
       "name": "Multimedia",
-      "color": "(255,255,176)",
-      "fontColor": "(0,0,0)",
+      "colorUnselected": "(255,255,176,150)",
+      "fontColorUnselected": "(0,0,0)",
+      "colorSelected": "(255,255,176,255)",
+      "fontColorSelected": "(0,0,0)",
       "entries": [
         {
           "name": "Kodi",
-          "color": "(255,255,176)",
-          "fontColor": "(0,0,0)",
-          "return": 64
+          "colorUnselected": "(255,255,176,150)",
+          "fontColorUnselected": "(0,0,0)",
+          "colorSelected": "(255,255,176,255)",
+          "fontColorSelected": "(0,0,0)",
+          "return": 64,
+          "command": "/usr/bin/kodi-standalone"
         },
         {
           "name": "VLC",
-          "color": "(255,255,176)",
-          "fontColor": "(0,0,0)",
-          "return": 65
+          "colorUnselected": "(255,255,176,150)",
+          "fontColorUnselected": "(0,0,0)",
+          "colorSelected": "(255,255,176,255)",
+          "fontColorSelected": "(0,0,0)",
+          "return": 65,
+          "command": "/usr/bin/vlc"
         }
       ]
     },
     {
       "name": "Games",
-      "color": "(204,236,239)",
-      "fontColor": "(0,0,0)",
+      "colorUnselected": "(204,236,239,150)",
+      "fontColorUnselected": "(0,0,0)",
+      "colorSelected": "(204,236,239,255)",
+      "fontColorSelected": "(0,0,0)",
       "entries": [
         {
           "name": "Nes",
-          "color": "(255,255,176)",
-          "fontColor": "(0,0,0)",
-          "return": 66
+          "colorUnselected": "(204,236,239,150)",
+          "fontColorUnselected": "(0,0,0)",
+          "colorSelected": "(204,236,239,255)",
+          "fontColorSelected": "(0,0,0)",
+          "return": 66,
+          "command": "/usr/bin/retroarch"
         },
         {
           "name": "Snes",
-          "color": "(255,255,176)",
-          "fontColor": "(0,0,0)",
-          "return": 67
+          "colorUnselected": "(204,236,239,150)",
+          "fontColorUnselected": "(0,0,0)",
+          "colorSelected": "(204,236,239,255)",
+          "fontColorSelected": "(0,0,0)",
+          "return": 67,
+          "command": "/usr/bin/retroarch"
         }
       ]
     },
     {
       "name": "Other",
-      "color": "(224,243,176)",
-      "fontColor": "(0,0,0)",
+      "colorUnselected": "(224,243,176,150)",
+      "fontColorUnselected": "(0,0,0)",
+      "colorSelected": "(224,243,176,255)",
+      "fontColorSelected": "(0,0,0)",
       "entries": [
         {
           "name": "Firefox",
-          "color": "(255,255,176)",
-          "fontColor": "(0,0,0)",
+          "colorUnselected": "(224,243,176,150)",
+          "fontColorUnselected": "(0,0,0)",
+          "colorSelected": "(224,243,176,255)",
+          "fontColorSelected": "(0,0,0)",
           "return": 68
         }
       ]

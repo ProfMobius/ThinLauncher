@@ -17,21 +17,26 @@ class PyMain(object):
         pygame.init()
         self.width = width
         self.height = height
-        self.assets = {}
-        self.screen = pygame.display.set_mode((self.width, self.height))
+        self.screen = pygame.display.set_mode((self.width, self.height), SRCALPHA)
         # self.__background = pygame.Surface(self.__screen.get_size()).convert()
         # self.__foreground = pygame.Surface(self.__screen.get_size()).convert()
 
         self.jsondata = json.load(open(os.path.join("assets", jsonfilename), 'rb'))
 
-        self.backgroundColor = eval(self.jsondata['BackgroundColor'])
-        self.screen.fill(self.backgroundColor)
+        self.backgroundColor = eval(self.jsondata['backgroundColor'])
+        if 'backgroundImage' in self.jsondata:
+            self.backgroundImage = self.load_image('bgimage', self.jsondata['backgroundImage'])
+            self.backgroundImage = pygame.transform.smoothscale(self.backgroundImage, (self.width, self.height))
+        else:
+            self.backgroundImage = None
 
-        self.menus = self.jsondata['Menus']
+        self.menus = self.jsondata['menus']
         self.menuWidth = (self.screen.get_width() - len(self.menus)) / len(self.menus)
         self.menuHeight = 40
         self.menuLabels = [
-            Label(self.menuWidth, self.menuHeight, eval(i['color']), eval(i['fontColor']), i['name']) for
+            Label(self.menuWidth, self.menuHeight, eval(i['colorUnselected']), eval(i['fontColorUnselected']),
+                  eval(i['colorSelected']), eval(i['fontColorSelected']),
+                  i['name']) for
             i in self.menus]
 
         self.entries = []
@@ -48,6 +53,9 @@ class PyMain(object):
 
     def redraw(self):
         self.screen.fill(self.backgroundColor)
+
+        if self.backgroundImage:
+            self.screen.blit(self.backgroundImage, self.backgroundImage.get_rect())
 
         for i, label in enumerate(self.menuLabels):
             label.redraw()
@@ -73,7 +81,8 @@ class PyMain(object):
         self.entries = self.menus[menuIndex]['entries']
 
         self.entryLabels = [
-            Label(self.entryWidth, self.entryHeight, eval(i['color']), eval(i['fontColor']),
+            Label(self.entryWidth, self.entryHeight, eval(i['colorUnselected']), eval(i['fontColorUnselected']),
+                  eval(i['colorSelected']), eval(i['fontColorSelected']),
                   i['name']) for i in self.entries]
         self.setSelectedEntry(0)
 
@@ -119,5 +128,4 @@ class PyMain(object):
             if colorkey is -1:
                 colorkey = image.get_at((0, 0))
             image.set_colorkey(colorkey, RLEACCEL)
-        self.assets[key] = (image, image.get_rect())
-        return image, image.get_rect()
+        return image
