@@ -15,10 +15,14 @@ while True:
     if returnCode != 0:
         sys.exit(returnCode)
 
-    ff = open(os.path.join(tempfile.gettempdir(), 'thinlauncher.tmp'), 'rb')
-    command = ff.read()
-    ff.close()
-    if command is not None or command != "":
+    temporaryFile = os.path.join(tempfile.gettempdir(), 'thinlauncher.tmp')
+    if os.path.exists(temporaryFile):
+        ff = open(temporaryFile, 'rb')
+        command = ff.read()
+        ff.close()
         subprocess.call(BASE_COMMAND % command, shell=True)
+        os.remove(temporaryFile)
+    else:
+        sys.exit(0)
 
 

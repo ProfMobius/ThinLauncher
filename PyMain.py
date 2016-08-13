@@ -21,6 +21,7 @@ class PyMain(object):
         # self.__background = pygame.Surface(self.__screen.get_size()).convert()
         # self.__foreground = pygame.Surface(self.__screen.get_size()).convert()
 
+        self.temporaryFile = os.path.join(tempfile.gettempdir(), 'thinlauncher.tmp')
         self.jsondata = json.load(open(os.path.join("assets", jsonfilename), 'rb'))
 
         self.backgroundColor = eval(self.jsondata['backgroundColor'])
@@ -98,7 +99,6 @@ class PyMain(object):
     def loop(self):
         while 1:
             for event in pygame.event.get():
-
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
                         sys.exit(0)
@@ -112,16 +112,15 @@ class PyMain(object):
                         self.setSelectedEntry((self.currentEntry + 1) % len(self.entries))
                     elif event.key == pygame.K_RETURN:
                         entry = self.menus[self.currentMenu]['entries'][self.currentEntry]
-                        ff = open(os.path.join(tempfile.gettempdir(), 'thinlauncher.tmp'), 'wb')
+                        ff = open(self.temporaryFile, 'wb')
                         ff.write(entry['command'])
                         ff.close()
                         print "Launching %s with command %d"%(entry['name'], entry['command'])
                         sys.exit(0)
 
                 if event.type == pygame.QUIT:
-                    ff = open(os.path.join(tempfile.gettempdir(), 'thinlauncher.tmp'), 'wb')
-                    ff.write("")
-                    ff.close()
+                    if os.path.exists(self.temporaryFile):
+                        os.remove(self.temporaryFile)
                     sys.exit(0)
 
     def load_image(self, key, filename, colorkey=None):
