@@ -7,19 +7,16 @@
       "fontColor": "(0,0,0)",
       "entries": [
         {
-          "name": "Test1",
+          "name": "Kodi",
           "color": "(255,255,176)",
-          "fontColor": "(0,0,0)"
+          "fontColor": "(0,0,0)",
+          "return": 64
         },
         {
-          "name": "Test2",
+          "name": "VLC",
           "color": "(255,255,176)",
-          "fontColor": "(0,0,0)"
-        },
-        {
-          "name": "Test3",
-          "color": "(255,255,176)",
-          "fontColor": "(0,0,0)"
+          "fontColor": "(0,0,0)",
+          "return": 65
         }
       ]
     },
@@ -29,14 +26,16 @@
       "fontColor": "(0,0,0)",
       "entries": [
         {
-          "name": "Test4",
+          "name": "Nes",
           "color": "(255,255,176)",
-          "fontColor": "(0,0,0)"
+          "fontColor": "(0,0,0)",
+          "return": 66
         },
         {
-          "name": "Test5",
+          "name": "Snes",
           "color": "(255,255,176)",
-          "fontColor": "(0,0,0)"
+          "fontColor": "(0,0,0)",
+          "return": 67
         }
       ]
     },
@@ -46,14 +45,10 @@
       "fontColor": "(0,0,0)",
       "entries": [
         {
-          "name": "Test6",
+          "name": "Firefox",
           "color": "(255,255,176)",
-          "fontColor": "(0,0,0)"
-        },
-        {
-          "name": "Test7",
-          "color": "(255,255,176)",
-          "fontColor": "(0,0,0)"
+          "fontColor": "(0,0,0)",
+          "return": 68
         }
       ]
     }

@@ -15,52 +15,97 @@ if not pygame.mixer:
 class PyMain(object):
     def __init__(self, width, height, jsonfilename):
         pygame.init()
-        self.__width = width
-        self.__height = height
-        self.__assets = {}
-        self.__screen = pygame.display.set_mode((self.__width, self.__height))
-        self.__background = pygame.Surface(self.__screen.get_size()).convert()
-        self.__foreground = pygame.Surface(self.__screen.get_size()).convert()
+        self.width = width
+        self.height = height
+        self.assets = {}
+        self.screen = pygame.display.set_mode((self.width, self.height))
+        # self.__background = pygame.Surface(self.__screen.get_size()).convert()
+        # self.__foreground = pygame.Surface(self.__screen.get_size()).convert()
 
-        self.__jsondata = json.load(open(os.path.join("assets", jsonfilename), 'rb'))
+        self.jsondata = json.load(open(os.path.join("assets", jsonfilename), 'rb'))
 
-        self.__mainColor = eval(self.__jsondata['BackgroundColor'])
-        self.__screen.fill(self.__mainColor)
+        self.backgroundColor = eval(self.jsondata['BackgroundColor'])
+        self.screen.fill(self.backgroundColor)
 
-        self.__menus = self.__jsondata['Menus']
-        self.__nMenus = len(self.__menus)
-        self.__submenus = None
-        self.__menuLabelWidth = (self.__screen.get_width() - self.__nMenus) / self.__nMenus
-        self.__menuLabelHeight = 40
-        self.__menuLabels = [Label(self.__menuLabelWidth, self.__menuLabelHeight, eval(i['color']), eval(i['fontColor']), i['name']) for i in self.__menus]
-        self.__currentMenu = 0
-        self.__currentSubmenu = 0
+        self.menus = self.jsondata['Menus']
+        self.menuWidth = (self.screen.get_width() - len(self.menus)) / len(self.menus)
+        self.menuHeight = 40
+        self.menuLabels = [
+            Label(self.menuWidth, self.menuHeight, eval(i['color']), eval(i['fontColor']), i['name']) for
+            i in self.menus]
 
-        self.setSelectedMenu(self.__currentMenu)
+        self.entries = []
+        self.entryWidth = 250
+        self.entryHeight = 80
+        self.entryLabels = []
+
+        self.currentMenu = 0
+        self.currentEntry = 0
+
+        self.setSelectedMenu(self.currentMenu)
 
         print "Using driver : " + pygame.display.get_driver()
 
     def redraw(self):
-        self.__screen.fill(self.__mainColor)
+        self.screen.fill(self.backgroundColor)
 
-        for i, label in enumerate(self.__menuLabels):
+        for i, label in enumerate(self.menuLabels):
             label.redraw()
-            self.__screen.blit(label, label.get_rect(x=i * self.__menuLabelWidth + i))
+            self.screen.blit(label, label.get_rect(x=i * self.menuWidth + i))
 
-        for i, label in enumerate(self.__submenuLabels):
+        for i, label in enumerate(self.entryLabels):
             label.redraw()
-            self.__screen.blit(label, label.get_rect(y=(i + 1) * self.__menuLabelHeight + 1 + i))
+            self.screen.blit(label, label.get_rect(y=i * self.entryHeight + 1 + i + self.menuHeight))
 
         pygame.display.flip()
 
     def getScreen(self):
-        return self.__screen
+        return self.screen
 
-    def getForeground(self):
-        return self.__foreground
+    def get_asset(self, key):
+        return self.assets[key]
 
-    def getBackground(self):
-        return self.__background
+    def setSelectedMenu(self, menuIndex):
+        self.currentMenu = menuIndex
+
+        [i.setSelected(False) for i in self.menuLabels]
+        self.menuLabels[menuIndex].setSelected(True)
+        self.entries = self.menus[menuIndex]['entries']
+
+        self.entryLabels = [
+            Label(self.entryWidth, self.entryHeight, eval(i['color']), eval(i['fontColor']),
+                  i['name']) for i in self.entries]
+        self.setSelectedEntry(0)
+
+        self.redraw()
+
+    def setSelectedEntry(self, entryIndex):
+        self.currentEntry = entryIndex
+
+        [i.setSelected(False) for i in self.entryLabels]
+        self.entryLabels[entryIndex].setSelected(True)
+        self.redraw()
+
+    def loop(self):
+        while 1:
+            for event in pygame.event.get():
+
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_ESCAPE:
+                        sys.exit(0)
+                    elif event.key == pygame.K_LEFT:
+                        self.setSelectedMenu((self.currentMenu - 1) % len(self.menus))
+                    elif event.key == pygame.K_RIGHT:
+                        self.setSelectedMenu((self.currentMenu + 1) % len(self.menus))
+                    elif event.key == pygame.K_UP:
+                        self.setSelectedEntry((self.currentEntry - 1) % len(self.entries))
+                    elif event.key == pygame.K_DOWN:
+                        self.setSelectedEntry((self.currentEntry + 1) % len(self.entries))
+                    elif event.key == pygame.K_RETURN:
+                        sys.exit(self.menus[self.currentMenu]['entries'][self.currentEntry]['return'])
+
+                if event.type == pygame.QUIT:
+                    sys.exit(0)
 
     def load_image(self, key, filename, colorkey=None):
         fullname = os.path.join('assets', filename)
@@ -74,42 +119,5 @@ class PyMain(object):
             if colorkey is -1:
                 colorkey = image.get_at((0, 0))
             image.set_colorkey(colorkey, RLEACCEL)
-        self.__assets[key] = (image, image.get_rect())
+        self.assets[key] = (image, image.get_rect())
         return image, image.get_rect()
-
-    def get_asset(self, key):
-        return self.__assets[key]
-
-    def setSelectedMenu(self, menuIndex):
-        [i.setSelected(False) for i in self.__menuLabels]
-        self.__menuLabels[menuIndex].setSelected(True)
-        self.__submenus = self.__menus[menuIndex]['entries']
-
-        self.__submenuLabels = [
-            Label(self.__menuLabelWidth, self.__menuLabelHeight, eval(i['color']), eval(i['fontColor']), i['name']) for
-            i in self.__submenus]
-
-        self.redraw()
-
-    def loop(self):
-        while 1:
-            for event in pygame.event.get():
-
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_ESCAPE:
-                        sys.exit(0)
-                    elif event.key == pygame.K_LEFT:
-                        self.__currentMenu = (self.__currentMenu - 1) % len(self.__menus)
-                        self.setSelectedMenu(self.__currentMenu)
-                    elif event.key == pygame.K_RIGHT:
-                        self.__currentMenu = (self.__currentMenu + 1) % len(self.__menus)
-                        self.setSelectedMenu(self.__currentMenu)
-                    elif event.key == pygame.K_UP:
-                        pass
-                    elif event.key == pygame.K_DOWN:
-                        pass
-                    elif event.key == pygame.K_RETURN:
-                        pass
-
-                if event.type == pygame.QUIT:
-                    sys.exit(0)
