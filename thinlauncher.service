@@ -1,0 +1,17 @@
+[Unit]
+Description = Starts the thin launcher using X11
+After = systemd-user-sessions.service network.target sound.target mysqld.service
+Conflicts=getty@tty7.service
+
+[Service]
+User = kodi
+Group = users
+PAMName=login
+Type = simple
+TTYPath=/7
+ExecStart = /usr/bin/python2 /home/kodi/ThinLauncher/daemon.py
+Restart = on-abort
+StandardInput = tty
+
+[Install]
+WantedBy = multi-user.target

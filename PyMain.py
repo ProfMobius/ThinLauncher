@@ -22,7 +22,7 @@ class PyMain(object):
         # self.__foreground = pygame.Surface(self.__screen.get_size()).convert()
 
         self.temporaryFile = os.path.join(tempfile.gettempdir(), 'thinlauncher.tmp')
-        self.jsondata = json.load(open(os.path.join("assets", jsonfilename), 'rb'))
+        self.jsondata = json.load(open(os.path.join("/home/kodi/ThinLauncher/assets", jsonfilename), 'rb'))
 
         self.backgroundColor = eval(self.jsondata['backgroundColor'])
         if 'backgroundImage' in self.jsondata:
@@ -124,7 +124,7 @@ class PyMain(object):
                     sys.exit(0)
 
     def load_image(self, key, filename, colorkey=None):
-        fullname = os.path.join('assets', filename)
+        fullname = os.path.join('/home/kodi/ThinLauncher/assets', filename)
         try:
             image = pygame.image.load(fullname)
         except pygame.error, message:
