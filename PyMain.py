@@ -35,8 +35,7 @@ class PyMain(object):
         self.backgroundColor = eval(self.jsondata['backgroundColor'])
         if 'backgroundImage' in self.jsondata:
             self.backgroundImage = self.load_image('bgimage', self.jsondata['backgroundImage'])
-            self.backgroundImage = pygame.transform.smoothscale(self.backgroundImage,
-                                                                (self.screen.get_width(), self.screen.get_height()))
+            self.backgroundImage = pygame.transform.smoothscale(self.backgroundImage, (self.screen.get_width(), self.screen.get_height()))
         else:
             self.backgroundImage = None
 
@@ -44,10 +43,9 @@ class PyMain(object):
         self.menuWidth = (self.screen.get_width() - len(self.menus)) / len(self.menus)
         self.menuHeight = 80
         self.menuLabels = [
-            Label(self.menuWidth, self.menuHeight, eval(i['colorUnselected']), eval(i['fontColorUnselected']),
-                  eval(i['colorSelected']), eval(i['fontColorSelected']),
-                  i['name']) for
-            i in self.menus]
+            Label(self.menuWidth, self.menuHeight, eval(i['colorUnselected']), eval(i['fontColorUnselected']), eval(i['colorSelected']), eval(i['fontColorSelected']), i['name'])
+            for i in self.menus
+        ]
         logger.debug("Top menu button size : %dx%d" % (self.menuLabels[0].get_width(), self.menuLabels[0].get_height()))
 
         self.entries = []
@@ -87,9 +85,6 @@ class PyMain(object):
     def getScreen(self):
         return self.screen
 
-    def get_asset(self, key):
-        return self.assets[key]
-
     def setSelectedMenu(self, menuIndex):
         self.currentMenu = menuIndex
 
@@ -98,9 +93,9 @@ class PyMain(object):
         self.entries = self.menus[menuIndex]['entries']
 
         self.entryLabels = [
-            Label(self.entryWidth, self.entryHeight, eval(i['colorUnselected']), eval(i['fontColorUnselected']),
-                  eval(i['colorSelected']), eval(i['fontColorSelected']),
-                  i['name']) for i in self.entries]
+            Label(self.entryWidth, self.entryHeight, eval(i['colorUnselected']), eval(i['fontColorUnselected']), eval(i['colorSelected']), eval(i['fontColorSelected']), i['name'])
+            for i in self.entries
+        ]
         self.setSelectedEntry(0)
 
         self.redraw()
@@ -119,7 +114,10 @@ class PyMain(object):
 
                 # if (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE) \
                 # or (event.type == pygame.JOYBUTTONDOWN and event.button == 1):
-                if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                if (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE) \
+                or (event.type == pygame.QUIT):
+                    if os.path.exists(self.temporaryFile):
+                        os.remove(self.temporaryFile)
                     sys.exit(0)
 
                 elif (event.type == pygame.KEYDOWN and event.key == pygame.K_LEFT) \
@@ -145,11 +143,6 @@ class PyMain(object):
                     ff.write(entry['command'])
                     ff.close()
                     print "Launching %s with command %d" % (entry['name'], entry['command'])
-                    sys.exit(0)
-
-                if event.type == pygame.QUIT:
-                    if os.path.exists(self.temporaryFile):
-                        os.remove(self.temporaryFile)
                     sys.exit(0)
 
     def load_image(self, key, filename, colorkey=None):
