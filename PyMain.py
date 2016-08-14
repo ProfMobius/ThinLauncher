@@ -1,33 +1,37 @@
-import os, sys
 import json
+import os
+import shutil
+import sys
 import tempfile
 
-import shutil
-
-from Logger import logger
 import pygame
-import sys
 from pygame.locals import *
 
 from Label import Label
+from Logger import logger
+from surfaces.LeftMenu import LeftMenu
+from surfaces.MainArea import MainArea
+from surfaces.StatusBar import StatusBar
+from surfaces.TopMenu import TopMenu
 
 if not pygame.font:
     print 'Warning, fonts disabled'
 if not pygame.mixer:
     print 'Warning, sound disabled'
 
+#Change to 0,0 on release !
+SCREEN_RES_X = 1440
+SCREEN_RES_Y = 900
+TOP_MENU_HEIGHT = 80
+STATUS_BAR_HEIGHT = 40
+LEFT_MENU_WIDTH = 500
+LEFT_MENU_BUTTON_HEIGHT = 120
 
 class PyMain(object):
     def __init__(self):
         pygame.init()
-        self.screen = pygame.display.set_mode((0, 0), SRCALPHA)
-
-        logger.info("Screen created with resolution of %dx%d" % (self.screen.get_width(), self.screen.get_height()))
-
-        for i in range(pygame.joystick.get_count()):
-            joystick = pygame.joystick.Joystick(i)
-            joystick.init()
-            logger.info("Found joystick %s" % (joystick.get_name(),))
+        self.initSurfaces()
+        self.initJoysticks()
 
         self.temporaryFile = os.path.join(tempfile.gettempdir(), 'thinlauncher.tmp')
         self.jsondata = json.load(open(self.findConfig(), 'rb'))
@@ -41,7 +45,7 @@ class PyMain(object):
 
         self.menus = self.jsondata['menus']
         self.menuWidth = (self.screen.get_width() - len(self.menus)) / len(self.menus)
-        self.menuHeight = 80
+        self.menuHeight = TOP_MENU_HEIGHT
         self.menuLabels = [
             Label(self.menuWidth, self.menuHeight, eval(i['colorUnselected']), eval(i['fontColorUnselected']), eval(i['colorSelected']), eval(i['fontColorSelected']), i['name'])
             for i in self.menus
@@ -49,7 +53,7 @@ class PyMain(object):
         logger.debug("Top menu button size : %dx%d" % (self.menuLabels[0].get_width(), self.menuLabels[0].get_height()))
 
         self.entries = []
-        self.entryWidth = 500
+        self.entryWidth = LEFT_MENU_WIDTH
         self.entryHeight = 120
         self.entryLabels = []
         logger.debug("Left menu button size : %dx%d" % (self.entryWidth, self.entryHeight))
@@ -64,21 +68,49 @@ class PyMain(object):
 
         logger.info("Using driver : " + pygame.display.get_driver())
 
+    def initSurfaces(self):
+        self.screen = pygame.display.set_mode((SCREEN_RES_X, SCREEN_RES_Y), SRCALPHA)
+        screenWidth = self.screen.get_width()
+        screenHeight = self.screen.get_height()
+
+        self.topMenuSurface = TopMenu(screenWidth, TOP_MENU_HEIGHT)
+        self.leftMenuSurface = LeftMenu(LEFT_MENU_WIDTH, screenHeight - TOP_MENU_HEIGHT - STATUS_BAR_HEIGHT)
+        self.statusBarSurface = StatusBar(screenWidth, STATUS_BAR_HEIGHT)
+        self.mainAreaSurface = MainArea(screenWidth - LEFT_MENU_WIDTH, screenHeight - TOP_MENU_HEIGHT - STATUS_BAR_HEIGHT)
+
+        logger.info("Screen created with resolution of %dx%d" % (screenWidth, screenHeight))
+        logger.info("TopMenu created with resolution of %dx%d" % (self.topMenuSurface.get_width(), self.topMenuSurface.get_height()))
+        logger.info("LeftMenu created with resolution of %dx%d" % (self.leftMenuSurface.get_width(), self.leftMenuSurface.get_height()))
+        logger.info("StatusBar created with resolution of %dx%d" % (self.statusBarSurface.get_width(), self.statusBarSurface.get_height()))
+        logger.info("MainArea created with resolution of %dx%d" % (self.mainAreaSurface.get_width(), self.mainAreaSurface.get_height()))
+
+
+    def initJoysticks(self):
+        for i in range(pygame.joystick.get_count()):
+            joystick = pygame.joystick.Joystick(i)
+            joystick.init()
+            logger.info("Found joystick %s" % (joystick.get_name(),))
+
     def redraw(self):
         self.screen.fill(self.backgroundColor)
 
         if self.backgroundImage:
             self.screen.blit(self.backgroundImage, self.backgroundImage.get_rect())
 
-        self.screen.blit(self.leftMenu, self.leftMenu.get_rect(y=self.menuHeight + 1))
+        self.topMenuSurface.redraw(self.screen, 0, 0)
+        self.leftMenuSurface.redraw(self.screen, 0, TOP_MENU_HEIGHT)
+        self.statusBarSurface.redraw(self.screen, 0, TOP_MENU_HEIGHT + self.leftMenuSurface.get_height())
+        self.mainAreaSurface.redraw(self.screen, LEFT_MENU_WIDTH, TOP_MENU_HEIGHT)
 
-        for i, label in enumerate(self.menuLabels):
-            label.redraw()
-            self.screen.blit(label, label.get_rect(x=i * self.menuWidth + i))
-
-        for i, label in enumerate(self.entryLabels):
-            label.redraw()
-            self.screen.blit(label, label.get_rect(y=i * self.entryHeight + 1 + i + self.menuHeight))
+        # self.screen.blit(self.leftMenu, self.leftMenu.get_rect(y=self.menuHeight + 1))
+        #
+        # for i, label in enumerate(self.menuLabels):
+        #     label.redraw()
+        #     self.screen.blit(label, label.get_rect(x=i * self.menuWidth + i))
+        #
+        # for i, label in enumerate(self.entryLabels):
+        #     label.redraw()
+        #     self.screen.blit(label, label.get_rect(y=i * self.entryHeight + 1 + i + self.menuHeight))
 
         pygame.display.flip()
 
@@ -110,8 +142,6 @@ class PyMain(object):
     def loop(self):
         while 1:
             for event in pygame.event.get():
-                logger.debug(event)
-
                 # if (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE) \
                 # or (event.type == pygame.JOYBUTTONDOWN and event.button == 1):
                 if (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE) \
