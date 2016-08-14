@@ -13,6 +13,7 @@ from surfaces.LeftMenu import LeftMenu
 from surfaces.MainArea import MainArea
 from surfaces.StatusBar import StatusBar
 from surfaces.TopMenu import TopMenu
+from utils import FileSystemHelper
 
 if not pygame.font:
     print 'Warning, fonts disabled'
@@ -28,7 +29,7 @@ class PyMain(object):
         self.initJoysticks()
 
         self.temporaryFile = os.path.join(tempfile.gettempdir(), 'thinlauncher.tmp')
-        self.jsondata = json.load(open(self.findConfig(), 'rb'))
+        self.jsondata = json.load(open(FileSystemHelper.findConfig(), 'rb'))
 
         self.backgroundColor = eval(self.jsondata['backgroundColor'])
         if 'backgroundImage' in self.jsondata:
@@ -122,7 +123,7 @@ class PyMain(object):
                 self.redraw()
 
     def load_image(self, filename, colorkey=None):
-        fullname = self.findAsset(filename)
+        fullname = FileSystemHelper.findAsset(filename)
         try:
             image = pygame.image.load(fullname)
         except pygame.error, message:
@@ -135,41 +136,4 @@ class PyMain(object):
             image.set_colorkey(colorkey, RLEACCEL)
         return image
 
-    def findAsset(self, name):
-        pathUsrShare = "/usr/share/thinlauncher/assets"
-        pathHome = os.path.join(os.path.expanduser("~"), ".config/thinlauncher/assets")
-        pathDev = "./assets"
 
-        if not os.path.exists(pathHome):
-            os.makedirs(pathHome)
-
-        if os.path.exists(os.path.join(pathHome, name)):
-            return os.path.join(pathHome, name)
-
-        if os.path.exists(os.path.join(pathUsrShare, name)):
-            return os.path.join(pathUsrShare, name)
-
-        if os.path.exists(os.path.join(pathDev, name)):
-            return os.path.join(pathDev, name)
-
-    def findConfig(self):
-        configName = "thinlauncher.cfg"
-        pathUsrShare = "/usr/share/thinlauncher/"
-        pathHome = os.path.join(os.path.expanduser("~"), ".config/thinlauncher/")
-        pathDev = "./"
-
-        if not os.path.exists(pathHome):
-            os.makedirs(pathHome)
-
-        if os.path.exists(os.path.join(pathHome, configName)):
-            return os.path.join(pathHome, configName)
-
-        if os.path.exists(os.path.join(pathUsrShare, configName)):
-            shutil.copy(pathUsrShare + configName, pathHome + configName)
-            return os.path.join(pathHome, configName)
-
-        if os.path.exists(os.path.join(pathDev, configName)):
-            return os.path.join(pathDev, configName)
-
-        logger.error("Can't find a valid config file !")
-        sys.exit(1)
