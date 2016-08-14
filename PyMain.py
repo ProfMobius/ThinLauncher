@@ -13,6 +13,7 @@ from surfaces.LeftMenu import LeftMenu
 from surfaces.MainArea import MainArea
 from surfaces.StatusBar import StatusBar
 from surfaces.TopMenu import TopMenu
+from utils import AssetManager
 from utils import FileSystemHelper
 
 if not pygame.font:
@@ -33,7 +34,7 @@ class PyMain(object):
 
         self.backgroundColor = eval(self.jsondata['backgroundColor'])
         if 'backgroundImage' in self.jsondata:
-            self.backgroundImage = FileSystemHelper.load_image(self.jsondata['backgroundImage'])
+            self.backgroundImage = AssetManager.load_image(self.jsondata['backgroundImage'])
             self.backgroundImage = pygame.transform.smoothscale(self.backgroundImage, (self.screen.get_width(), self.screen.get_height()))
         else:
             self.backgroundImage = None

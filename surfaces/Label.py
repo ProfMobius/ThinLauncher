@@ -1,6 +1,7 @@
 import pygame
 from pygame.rect import Rect
 from Constants import *
+from utils import AssetManager
 from utils import FileSystemHelper
 
 
@@ -27,14 +28,13 @@ class Label(pygame.Surface):
 
         if texture in self.data:
             self.fill((0, 0, 0, 0))
-            background = FileSystemHelper.load_image(self.data[texture])
+            background = AssetManager.load_image(self.data[texture])
             background = pygame.transform.smoothscale(background, (self.get_width(), self.get_height()))
             self.blit(background, background.get_rect())
         else:
             self.fill(eval(self.data[color]))
 
-        fontName = FileSystemHelper.findAsset(FONT_NAME) if FONT_NAME else None
-        textSurface = pygame.font.Font(fontName, FONT_SIZE).render(self.data['name'], 1, eval(self.data[fontColor]))
+        textSurface = AssetManager.get_font(FONT_NAME, FONT_SIZE).render(self.data['name'], 1, eval(self.data[fontColor]))
         textPos = textSurface.get_rect
 
         offsetX = self.get_height() / 2 if self.logo else 0
@@ -49,7 +49,7 @@ class Label(pygame.Surface):
         self.blit(textSurface, textPos)
 
         if self.logo and 'logo' in self.data:
-            image = FileSystemHelper.load_image(self.data['logo'])
+            image = AssetManager.load_image(self.data['logo'])
             image = pygame.transform.smoothscale(image, (self.get_height() / 2, self.get_height() / 2))
             self.blit(image, image.get_rect(x=image.get_width() / 2, centery=self.get_height() / 2))
 

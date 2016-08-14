@@ -23,8 +23,8 @@ try:
             ff = open(temporaryFile, 'rb')
             command = ff.read()
             ff.close()
-            subprocess.call(BASE_COMMAND % command, shell=True)
             os.remove(temporaryFile)
+            subprocess.call(BASE_COMMAND % command, shell=True)
         else:
             sys.exit(0)
 except Exception as e:
