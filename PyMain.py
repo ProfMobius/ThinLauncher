@@ -117,8 +117,9 @@ class PyMain(object):
             for event in pygame.event.get():
                 logger.debug(event)
 
-                if (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE) \
-                or (event.type == pygame.JOYBUTTONDOWN and event.button == 1):
+                # if (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE) \
+                # or (event.type == pygame.JOYBUTTONDOWN and event.button == 1):
+                if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
                     sys.exit(0)
 
                 elif (event.type == pygame.KEYDOWN and event.key == pygame.K_LEFT) \
