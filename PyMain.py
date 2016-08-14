@@ -85,6 +85,7 @@ class PyMain(object):
 
     def loop(self):
         while 1:
+            pygame.time.wait(5)
             for event in pygame.event.get():
                 # if (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE) \
                 # or (event.type == pygame.JOYBUTTONDOWN and event.button == 1):
@@ -98,19 +99,23 @@ class PyMain(object):
                 or (event.type == pygame.JOYBUTTONDOWN and event.button == 11):
                     topMenuIndex = (self.topMenuSurface.getSelected() - 1) % len(self.topMenuSurface.buttons)
                     self.setTopSelected(topMenuIndex)
+                    self.redraw()
 
                 elif (event.type == pygame.KEYDOWN and event.key == pygame.K_RIGHT) \
                 or (event.type == pygame.JOYBUTTONDOWN and event.button == 12):
                     topMenuIndex = (self.topMenuSurface.getSelected() + 1) % len(self.topMenuSurface.buttons)
                     self.setTopSelected(topMenuIndex)
+                    self.redraw()
 
                 elif (event.type == pygame.KEYDOWN and event.key == pygame.K_UP) \
                 or (event.type == pygame.JOYBUTTONDOWN and event.button == 13):
                     self.leftMenuSurface.setSelected((self.leftMenuSurface.getSelected() - 1) % len(self.leftMenuSurface.buttons))
+                    self.redraw()
 
                 elif (event.type == pygame.KEYDOWN and event.key == pygame.K_DOWN) \
                 or (event.type == pygame.JOYBUTTONDOWN and event.button == 14):
                     self.leftMenuSurface.setSelected((self.leftMenuSurface.getSelected() + 1) % len(self.leftMenuSurface.buttons))
+                    self.redraw()
 
                 elif (event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN) \
                 or (event.type == pygame.JOYBUTTONDOWN and event.button == 0):
@@ -120,9 +125,4 @@ class PyMain(object):
                     ff.close()
                     logger.info("Launching %s with command %s" % (entry['name'], entry['command']))
                     sys.exit(0)
-
-                self.redraw()
-
-
-
 
