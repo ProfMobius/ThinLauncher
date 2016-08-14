@@ -10,7 +10,7 @@ from Logger import logger
 
 try:
     def main():
-        pyMain = PyMain("/home/kodi/ThinLauncher/assets/menu.json")
+        pyMain = PyMain()
         pyMain.loop()
 
 

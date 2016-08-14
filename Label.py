@@ -13,7 +13,7 @@ class Label(pygame.Surface):
         self.__fontColorUnselected = fontColorUnselected
         self.__colorSelected = colorSelected
         self.__fontColorSelected = fontSelected
-        self.__font = pygame.font.Font(None, 36)
+        self.__font = pygame.font.Font(None, 72)
         self.__text = text
         self.__textRender = None
         self.__textPos = None

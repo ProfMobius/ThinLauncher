@@ -1,6 +1,5 @@
 #!/usr/bin/python2
 
-import json
 import os
 import subprocess
 import sys
@@ -11,7 +10,6 @@ BASE_COMMAND = "/usr/bin/xinit /usr/bin/dbus-launch --exit-with-session %s -- :0
 
 try:
     logger.debug("Starting ThinLauncher Daemon")
-    jsondata = json.load(open("/home/kodi/ThinLauncher/assets/menu.json", 'rb'))
 
     while True:
         logger.debug("Launching ThinLauncher GUI")

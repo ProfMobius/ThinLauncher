@@ -2,6 +2,9 @@ import os, sys
 import json
 import tempfile
 
+import shutil
+
+from Logger import logger
 import pygame
 import sys
 from pygame.locals import *
@@ -15,38 +18,47 @@ if not pygame.mixer:
 
 
 class PyMain(object):
-    def __init__(self, jsonfilename):
+    def __init__(self):
         pygame.init()
-        self.screen = pygame.display.set_mode()
-        # self.__background = pygame.Surface(self.__screen.get_size()).convert()
+        self.screen = pygame.display.set_mode((0, 0), SRCALPHA)
+
+        logger.info("Screen created with resolution of %dx%d" % (self.screen.get_width(), self.screen.get_height()))
+
+        # self.background = pygame.Surface(self.screen, SRCALPHA)
         # self.__foreground = pygame.Surface(self.__screen.get_size()).convert()
 
         self.temporaryFile = os.path.join(tempfile.gettempdir(), 'thinlauncher.tmp')
-        self.jsondata = json.load(open(os.path.join("/home/kodi/ThinLauncher/assets", jsonfilename), 'rb'))
+        self.jsondata = json.load(open(self.findConfig(), 'rb'))
 
         self.backgroundColor = eval(self.jsondata['backgroundColor'])
         if 'backgroundImage' in self.jsondata:
             self.backgroundImage = self.load_image('bgimage', self.jsondata['backgroundImage'])
-            self.backgroundImage = pygame.transform.smoothscale(self.backgroundImage, (self.screen.get_width(), self.screen.get_height()))
+            self.backgroundImage = pygame.transform.smoothscale(self.backgroundImage,
+                                                                (self.screen.get_width(), self.screen.get_height()))
         else:
             self.backgroundImage = None
 
         self.menus = self.jsondata['menus']
         self.menuWidth = (self.screen.get_width() - len(self.menus)) / len(self.menus)
-        self.menuHeight = 40
+        self.menuHeight = 80
         self.menuLabels = [
             Label(self.menuWidth, self.menuHeight, eval(i['colorUnselected']), eval(i['fontColorUnselected']),
                   eval(i['colorSelected']), eval(i['fontColorSelected']),
                   i['name']) for
             i in self.menus]
+        logger.info("Top menu button size : %dx%d" % (self.menuLabels[0].get_width(), self.menuLabels[0].get_height()))
 
         self.entries = []
-        self.entryWidth = 250
-        self.entryHeight = 80
+        self.entryWidth = 500
+        self.entryHeight = 120
         self.entryLabels = []
+        logger.info("Left menu button size : %dx%d" % (self.entryWidth, self.entryHeight))
 
         self.currentMenu = 0
         self.currentEntry = 0
+
+        self.leftMenu = pygame.Surface((self.entryWidth, self.screen.get_height() - self.menuHeight - 1), SRCALPHA)
+        self.leftMenu.fill(eval(self.jsondata['leftMenuColor']))
 
         self.setSelectedMenu(self.currentMenu)
 
@@ -57,6 +69,8 @@ class PyMain(object):
 
         if self.backgroundImage:
             self.screen.blit(self.backgroundImage, self.backgroundImage.get_rect())
+
+        self.screen.blit(self.leftMenu, self.leftMenu.get_rect(y=self.menuHeight + 1))
 
         for i, label in enumerate(self.menuLabels):
             label.redraw()
@@ -115,7 +129,7 @@ class PyMain(object):
                         ff = open(self.temporaryFile, 'wb')
                         ff.write(entry['command'])
                         ff.close()
-                        print "Launching %s with command %d"%(entry['name'], entry['command'])
+                        print "Launching %s with command %d" % (entry['name'], entry['command'])
                         sys.exit(0)
 
                 if event.type == pygame.QUIT:
@@ -124,7 +138,7 @@ class PyMain(object):
                     sys.exit(0)
 
     def load_image(self, key, filename, colorkey=None):
-        fullname = os.path.join('/home/kodi/ThinLauncher/assets', filename)
+        fullname = self.findAsset(filename)
         try:
             image = pygame.image.load(fullname)
         except pygame.error, message:
@@ -136,3 +150,42 @@ class PyMain(object):
                 colorkey = image.get_at((0, 0))
             image.set_colorkey(colorkey, RLEACCEL)
         return image
+
+    def findAsset(self, name):
+        pathUsrShare = "/usr/share/thinlauncher/assets"
+        pathHome = os.path.join(os.path.expanduser("~"), ".config/thinlauncher/assets")
+        pathDev = "./assets"
+
+        if not os.path.exists(pathHome):
+            os.makedirs(pathHome)
+
+        if os.path.exists(os.path.join(pathHome, name)):
+            return os.path.join(pathHome, name)
+
+        if os.path.exists(os.path.join(pathUsrShare, name)):
+            return os.path.join(pathUsrShare, name)
+
+        if os.path.exists(os.path.join(pathDev, name)):
+            return os.path.join(pathDev, name)
+
+    def findConfig(self):
+        configName = "thinlauncher.cfg"
+        pathUsrShare = "/usr/share/thinlauncher/"
+        pathHome = os.path.join(os.path.expanduser("~"), ".config/thinlauncher/")
+        pathDev = "./"
+
+        if not os.path.exists(pathHome):
+            os.makedirs(pathHome)
+
+        if os.path.exists(os.path.join(pathHome, configName)):
+            return os.path.join(pathHome, configName)
+
+        if os.path.exists(os.path.join(pathUsrShare, configName)):
+            shutil.copy(pathUsrShare + configName, pathHome + configName)
+            return os.path.join(pathHome, configName)
+
+        if os.path.exists(os.path.join(pathDev, configName)):
+            return os.path.join(pathDev, configName)
+
+        logger.error("Can't find a valid config file !")
+        sys.exit(1)
