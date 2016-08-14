@@ -21,7 +21,7 @@ class LeftMenu(pygame.Surface):
     def init(self, data):
         self.data = data
         self.buttons = []
-        self.buttons = [Label(LEFT_MENU_WIDTH, LEFT_MENU_BUTTON_HEIGHT, i, ALIGN_LEFT) for i in data]
+        self.buttons = [Label(LEFT_MENU_WIDTH, LEFT_MENU_BUTTON_HEIGHT, i, align=ALIGN_LEFT, logo=True) for i in data]
         self.setSelected(0)
 
     def getSelected(self):

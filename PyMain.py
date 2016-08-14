@@ -33,7 +33,7 @@ class PyMain(object):
 
         self.backgroundColor = eval(self.jsondata['backgroundColor'])
         if 'backgroundImage' in self.jsondata:
-            self.backgroundImage = self.load_image(self.jsondata['backgroundImage'])
+            self.backgroundImage = FileSystemHelper.load_image(self.jsondata['backgroundImage'])
             self.backgroundImage = pygame.transform.smoothscale(self.backgroundImage, (self.screen.get_width(), self.screen.get_height()))
         else:
             self.backgroundImage = None
@@ -122,18 +122,6 @@ class PyMain(object):
 
                 self.redraw()
 
-    def load_image(self, filename, colorkey=None):
-        fullname = FileSystemHelper.findAsset(filename)
-        try:
-            image = pygame.image.load(fullname)
-        except pygame.error, message:
-            print 'Cannot load image:', filename
-            raise SystemExit(message)
-        image = image.convert()
-        if colorkey is not None:
-            if colorkey is -1:
-                colorkey = image.get_at((0, 0))
-            image.set_colorkey(colorkey, RLEACCEL)
-        return image
+
 
 
