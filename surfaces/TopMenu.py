@@ -1,6 +1,6 @@
 import pygame
-
 from Label import Label
+from Constants import *
 
 
 class TopMenu(pygame.Surface):
@@ -21,8 +21,8 @@ class TopMenu(pygame.Surface):
 
     def init(self, data):
         self.data = data
-        self.buttonWidth = self.get_width()/len(data)
-        self.buttons = [Label(self.buttonWidth, 80, i) for i in data]
+        self.buttonWidth = self.get_width() / len(data)
+        self.buttons = [Label(self.buttonWidth, TOP_MENU_HEIGHT, i) for i in data]
         self.setSelected(0)
 
     def getSelected(self):

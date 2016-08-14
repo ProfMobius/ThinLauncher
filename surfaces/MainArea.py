@@ -1,4 +1,5 @@
 import pygame
+from Constants import *
 
 
 class MainArea(pygame.Surface):

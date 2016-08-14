@@ -1,5 +1,5 @@
 import pygame
-
+from Constants import *
 from Label import Label
 
 
@@ -14,14 +14,14 @@ class LeftMenu(pygame.Surface):
         self.fill((100, 100, 100, 150))
 
         for i, button in enumerate(self.buttons):
-            button.redraw(self, i * 0, i * 120)
+            button.redraw(self, i * 0, i * LEFT_MENU_BUTTON_HEIGHT)
 
         screen.blit(self, self.get_rect(x=x, y=y))
 
     def init(self, data):
         self.data = data
         self.buttons = []
-        self.buttons = [Label(500, 120, i) for i in data]
+        self.buttons = [Label(LEFT_MENU_WIDTH, LEFT_MENU_BUTTON_HEIGHT, i, ALIGN_LEFT) for i in data]
         self.setSelected(0)
 
     def getSelected(self):

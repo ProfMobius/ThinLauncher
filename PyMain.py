@@ -7,6 +7,7 @@ import tempfile
 import pygame
 from pygame.locals import *
 
+from Constants import *
 from Logger import logger
 from surfaces.LeftMenu import LeftMenu
 from surfaces.MainArea import MainArea
@@ -17,15 +18,6 @@ if not pygame.font:
     print 'Warning, fonts disabled'
 if not pygame.mixer:
     print 'Warning, sound disabled'
-
-# Change to 0,0 on release !
-SCREEN_RES_X = 1440
-SCREEN_RES_Y = 900
-TOP_MENU_HEIGHT = 80
-STATUS_BAR_HEIGHT = 40
-LEFT_MENU_WIDTH = 500
-LEFT_MENU_BUTTON_HEIGHT = 120
-
 
 class PyMain(object):
     def __init__(self):
