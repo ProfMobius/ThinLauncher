@@ -6,5 +6,5 @@ class StatusBar(pygame.Surface):
         super(StatusBar, self).__init__((h, w), pygame.SRCALPHA)
 
     def redraw(self, screen, x, y):
-        self.fill((0, 0, 255, 150))
+        self.fill((150, 150, 150, 150))
         screen.blit(self, self.get_rect(x=x, y=y))

@@ -7,5 +7,5 @@ class MainArea(pygame.Surface):
         self.selected = 0
 
     def redraw(self, screen, x, y):
-        self.fill((255, 0, 255, 150))
+        self.fill((150, 150, 255, 100))
         screen.blit(self, self.get_rect(x=x, y=y))

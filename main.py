@@ -1,12 +1,7 @@
 #!/usr/bin/python2
 
-import os, sys
-
-import pygame
-
-from PyMain import PyMain
-from Label import Label
 from Logger import logger
+from PyMain import PyMain
 
 try:
     def main():

@@ -7,7 +7,6 @@ import tempfile
 import pygame
 from pygame.locals import *
 
-from Label import Label
 from Logger import logger
 from surfaces.LeftMenu import LeftMenu
 from surfaces.MainArea import MainArea
@@ -19,7 +18,7 @@ if not pygame.font:
 if not pygame.mixer:
     print 'Warning, sound disabled'
 
-#Change to 0,0 on release !
+# Change to 0,0 on release !
 SCREEN_RES_X = 1440
 SCREEN_RES_Y = 900
 TOP_MENU_HEIGHT = 80
@@ -27,9 +26,12 @@ STATUS_BAR_HEIGHT = 40
 LEFT_MENU_WIDTH = 500
 LEFT_MENU_BUTTON_HEIGHT = 120
 
+
 class PyMain(object):
     def __init__(self):
         pygame.init()
+        logger.info("Using driver : " + pygame.display.get_driver())
+
         self.initSurfaces()
         self.initJoysticks()
 
@@ -38,35 +40,15 @@ class PyMain(object):
 
         self.backgroundColor = eval(self.jsondata['backgroundColor'])
         if 'backgroundImage' in self.jsondata:
-            self.backgroundImage = self.load_image('bgimage', self.jsondata['backgroundImage'])
+            self.backgroundImage = self.load_image(self.jsondata['backgroundImage'])
             self.backgroundImage = pygame.transform.smoothscale(self.backgroundImage, (self.screen.get_width(), self.screen.get_height()))
         else:
             self.backgroundImage = None
 
-        self.menus = self.jsondata['menus']
-        self.menuWidth = (self.screen.get_width() - len(self.menus)) / len(self.menus)
-        self.menuHeight = TOP_MENU_HEIGHT
-        self.menuLabels = [
-            Label(self.menuWidth, self.menuHeight, eval(i['colorUnselected']), eval(i['fontColorUnselected']), eval(i['colorSelected']), eval(i['fontColorSelected']), i['name'])
-            for i in self.menus
-        ]
-        logger.debug("Top menu button size : %dx%d" % (self.menuLabels[0].get_width(), self.menuLabels[0].get_height()))
+        self.topMenuSurface.init(self.jsondata['menus'])
+        self.setTopSelected(0)
 
-        self.entries = []
-        self.entryWidth = LEFT_MENU_WIDTH
-        self.entryHeight = 120
-        self.entryLabels = []
-        logger.debug("Left menu button size : %dx%d" % (self.entryWidth, self.entryHeight))
-
-        self.currentMenu = 0
-        self.currentEntry = 0
-
-        self.leftMenu = pygame.Surface((self.entryWidth, self.screen.get_height() - self.menuHeight - 1), SRCALPHA)
-        self.leftMenu.fill(eval(self.jsondata['leftMenuColor']))
-
-        self.setSelectedMenu(self.currentMenu)
-
-        logger.info("Using driver : " + pygame.display.get_driver())
+        self.redraw()
 
     def initSurfaces(self):
         self.screen = pygame.display.set_mode((SCREEN_RES_X, SCREEN_RES_Y), SRCALPHA)
@@ -83,7 +65,6 @@ class PyMain(object):
         logger.info("LeftMenu created with resolution of %dx%d" % (self.leftMenuSurface.get_width(), self.leftMenuSurface.get_height()))
         logger.info("StatusBar created with resolution of %dx%d" % (self.statusBarSurface.get_width(), self.statusBarSurface.get_height()))
         logger.info("MainArea created with resolution of %dx%d" % (self.mainAreaSurface.get_width(), self.mainAreaSurface.get_height()))
-
 
     def initJoysticks(self):
         for i in range(pygame.joystick.get_count()):
@@ -102,42 +83,11 @@ class PyMain(object):
         self.statusBarSurface.redraw(self.screen, 0, TOP_MENU_HEIGHT + self.leftMenuSurface.get_height())
         self.mainAreaSurface.redraw(self.screen, LEFT_MENU_WIDTH, TOP_MENU_HEIGHT)
 
-        # self.screen.blit(self.leftMenu, self.leftMenu.get_rect(y=self.menuHeight + 1))
-        #
-        # for i, label in enumerate(self.menuLabels):
-        #     label.redraw()
-        #     self.screen.blit(label, label.get_rect(x=i * self.menuWidth + i))
-        #
-        # for i, label in enumerate(self.entryLabels):
-        #     label.redraw()
-        #     self.screen.blit(label, label.get_rect(y=i * self.entryHeight + 1 + i + self.menuHeight))
-
         pygame.display.flip()
 
-    def getScreen(self):
-        return self.screen
-
-    def setSelectedMenu(self, menuIndex):
-        self.currentMenu = menuIndex
-
-        [i.setSelected(False) for i in self.menuLabels]
-        self.menuLabels[menuIndex].setSelected(True)
-        self.entries = self.menus[menuIndex]['entries']
-
-        self.entryLabels = [
-            Label(self.entryWidth, self.entryHeight, eval(i['colorUnselected']), eval(i['fontColorUnselected']), eval(i['colorSelected']), eval(i['fontColorSelected']), i['name'])
-            for i in self.entries
-        ]
-        self.setSelectedEntry(0)
-
-        self.redraw()
-
-    def setSelectedEntry(self, entryIndex):
-        self.currentEntry = entryIndex
-
-        [i.setSelected(False) for i in self.entryLabels]
-        self.entryLabels[entryIndex].setSelected(True)
-        self.redraw()
+    def setTopSelected(self, index):
+        self.topMenuSurface.setSelected(index)
+        self.leftMenuSurface.init(self.jsondata['menus'][index]['entries'])
 
     def loop(self):
         while 1:
@@ -152,30 +102,34 @@ class PyMain(object):
 
                 elif (event.type == pygame.KEYDOWN and event.key == pygame.K_LEFT) \
                 or (event.type == pygame.JOYBUTTONDOWN and event.button == 11):
-                    self.setSelectedMenu((self.currentMenu - 1) % len(self.menus))
+                    topMenuIndex = (self.topMenuSurface.getSelected() - 1) % len(self.topMenuSurface.buttons)
+                    self.setTopSelected(topMenuIndex)
 
                 elif (event.type == pygame.KEYDOWN and event.key == pygame.K_RIGHT) \
                 or (event.type == pygame.JOYBUTTONDOWN and event.button == 12):
-                    self.setSelectedMenu((self.currentMenu + 1) % len(self.menus))
+                    topMenuIndex = (self.topMenuSurface.getSelected() + 1) % len(self.topMenuSurface.buttons)
+                    self.setTopSelected(topMenuIndex)
 
                 elif (event.type == pygame.KEYDOWN and event.key == pygame.K_UP) \
                 or (event.type == pygame.JOYBUTTONDOWN and event.button == 13):
-                    self.setSelectedEntry((self.currentEntry - 1) % len(self.entries))
+                    self.leftMenuSurface.setSelected((self.leftMenuSurface.getSelected() - 1) % len(self.leftMenuSurface.buttons))
 
                 elif (event.type == pygame.KEYDOWN and event.key == pygame.K_DOWN) \
                 or (event.type == pygame.JOYBUTTONDOWN and event.button == 14):
-                    self.setSelectedEntry((self.currentEntry + 1) % len(self.entries))
+                    self.leftMenuSurface.setSelected((self.leftMenuSurface.getSelected() + 1) % len(self.leftMenuSurface.buttons))
 
                 elif (event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN) \
                 or (event.type == pygame.JOYBUTTONDOWN and event.button == 0):
-                    entry = self.menus[self.currentMenu]['entries'][self.currentEntry]
+                    entry = self.leftMenuSurface.data[self.leftMenuSurface.getSelected()]
                     ff = open(self.temporaryFile, 'wb')
                     ff.write(entry['command'])
                     ff.close()
-                    print "Launching %s with command %d" % (entry['name'], entry['command'])
+                    logger.info("Launching %s with command %s" % (entry['name'], entry['command']))
                     sys.exit(0)
 
-    def load_image(self, key, filename, colorkey=None):
+                self.redraw()
+
+    def load_image(self, filename, colorkey=None):
         fullname = self.findAsset(filename)
         try:
             image = pygame.image.load(fullname)
