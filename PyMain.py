@@ -24,8 +24,10 @@ class PyMain(object):
 
         logger.info("Screen created with resolution of %dx%d" % (self.screen.get_width(), self.screen.get_height()))
 
-        # self.background = pygame.Surface(self.screen, SRCALPHA)
-        # self.__foreground = pygame.Surface(self.__screen.get_size()).convert()
+        for i in range(pygame.joystick.get_count()):
+            joystick = pygame.joystick.Joystick(i)
+            joystick.init()
+            logger.info("Found joystick %s" % (joystick.get_name(),))
 
         self.temporaryFile = os.path.join(tempfile.gettempdir(), 'thinlauncher.tmp')
         self.jsondata = json.load(open(self.findConfig(), 'rb'))
@@ -46,13 +48,13 @@ class PyMain(object):
                   eval(i['colorSelected']), eval(i['fontColorSelected']),
                   i['name']) for
             i in self.menus]
-        logger.info("Top menu button size : %dx%d" % (self.menuLabels[0].get_width(), self.menuLabels[0].get_height()))
+        logger.debug("Top menu button size : %dx%d" % (self.menuLabels[0].get_width(), self.menuLabels[0].get_height()))
 
         self.entries = []
         self.entryWidth = 500
         self.entryHeight = 120
         self.entryLabels = []
-        logger.info("Left menu button size : %dx%d" % (self.entryWidth, self.entryHeight))
+        logger.debug("Left menu button size : %dx%d" % (self.entryWidth, self.entryHeight))
 
         self.currentMenu = 0
         self.currentEntry = 0
@@ -62,7 +64,7 @@ class PyMain(object):
 
         self.setSelectedMenu(self.currentMenu)
 
-        print "Using driver : " + pygame.display.get_driver()
+        logger.info("Using driver : " + pygame.display.get_driver())
 
     def redraw(self):
         self.screen.fill(self.backgroundColor)
@@ -113,24 +115,36 @@ class PyMain(object):
     def loop(self):
         while 1:
             for event in pygame.event.get():
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_ESCAPE:
-                        sys.exit(0)
-                    elif event.key == pygame.K_LEFT:
-                        self.setSelectedMenu((self.currentMenu - 1) % len(self.menus))
-                    elif event.key == pygame.K_RIGHT:
-                        self.setSelectedMenu((self.currentMenu + 1) % len(self.menus))
-                    elif event.key == pygame.K_UP:
-                        self.setSelectedEntry((self.currentEntry - 1) % len(self.entries))
-                    elif event.key == pygame.K_DOWN:
-                        self.setSelectedEntry((self.currentEntry + 1) % len(self.entries))
-                    elif event.key == pygame.K_RETURN:
-                        entry = self.menus[self.currentMenu]['entries'][self.currentEntry]
-                        ff = open(self.temporaryFile, 'wb')
-                        ff.write(entry['command'])
-                        ff.close()
-                        print "Launching %s with command %d" % (entry['name'], entry['command'])
-                        sys.exit(0)
+                logger.debug(event)
+
+                if (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE) \
+                or (event.type == pygame.JOYBUTTONDOWN and event.button == 1):
+                    sys.exit(0)
+
+                elif (event.type == pygame.KEYDOWN and event.key == pygame.K_LEFT) \
+                or (event.type == pygame.JOYBUTTONDOWN and event.button == 11):
+                    self.setSelectedMenu((self.currentMenu - 1) % len(self.menus))
+
+                elif (event.type == pygame.KEYDOWN and event.key == pygame.K_RIGHT) \
+                or (event.type == pygame.JOYBUTTONDOWN and event.button == 12):
+                    self.setSelectedMenu((self.currentMenu + 1) % len(self.menus))
+
+                elif (event.type == pygame.KEYDOWN and event.key == pygame.K_UP) \
+                or (event.type == pygame.JOYBUTTONDOWN and event.button == 13):
+                    self.setSelectedEntry((self.currentEntry - 1) % len(self.entries))
+
+                elif (event.type == pygame.KEYDOWN and event.key == pygame.K_DOWN) \
+                or (event.type == pygame.JOYBUTTONDOWN and event.button == 14):
+                    self.setSelectedEntry((self.currentEntry + 1) % len(self.entries))
+
+                elif (event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN) \
+                or (event.type == pygame.JOYBUTTONDOWN and event.button == 0):
+                    entry = self.menus[self.currentMenu]['entries'][self.currentEntry]
+                    ff = open(self.temporaryFile, 'wb')
+                    ff.write(entry['command'])
+                    ff.close()
+                    print "Launching %s with command %d" % (entry['name'], entry['command'])
+                    sys.exit(0)
 
                 if event.type == pygame.QUIT:
                     if os.path.exists(self.temporaryFile):
