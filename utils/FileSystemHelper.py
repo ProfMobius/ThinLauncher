@@ -26,7 +26,10 @@ def findAsset(name):
         return os.path.join(pathDev, name)
 
 
-def findConfig():
+def findConfig(configFile):
+    if configFile is not None:
+        return configFile
+
     configName = "thinlauncher.cfg"
     pathUsrShare = "/usr/share/thinlauncher/"
     pathHome = os.path.join(os.path.expanduser("~"), ".config/thinlauncher/")

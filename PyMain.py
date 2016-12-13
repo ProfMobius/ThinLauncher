@@ -22,7 +22,7 @@ if not pygame.mixer:
     print 'Warning, sound disabled'
 
 class PyMain(object):
-    def __init__(self):
+    def __init__(self, configFile):
         pygame.init()
         logger.info("Using driver : " + pygame.display.get_driver())
 
@@ -30,7 +30,7 @@ class PyMain(object):
         self.initJoysticks()
 
         self.temporaryFile = os.path.join(tempfile.gettempdir(), 'thinlauncher.tmp')
-        self.jsondata = json.load(open(FileSystemHelper.findConfig(), 'rb'))
+        self.jsondata = json.load(open(FileSystemHelper.findConfig(configFile), 'rb'))
 
         self.backgroundColor = eval(self.jsondata['backgroundColor'])
         if 'backgroundImage' in self.jsondata:
