@@ -24,7 +24,7 @@ try:
             command = ff.read()
             ff.close()
             os.remove(temporaryFile)
-            subprocess.call(BASE_COMMAND % command, shell=True)
+            subprocess.call(command, shell=True)
         else:
             sys.exit(0)
 except Exception as e:

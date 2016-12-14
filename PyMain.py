@@ -23,6 +23,8 @@ if not pygame.font:
 if not pygame.mixer:
     print 'Warning, sound disabled'
 
+BASE_COMMAND = "/usr/bin/xinit /usr/bin/dbus-launch --exit-with-session %s -- :0 -nolisten tcp vt7"
+
 
 class PyMain(object):
     def __init__(self, configFile):
@@ -144,7 +146,14 @@ class PyMain(object):
                     # We run a command if there is one
                     if 'command' in entry:
                         ff = open(self.temporaryFile, 'wb')
-                        ff.write(entry['command'])
+
+                        command = entry['command']
+                        if command[0] == '#':
+                            command = command[1:]
+                        else:
+                            command = BASE_COMMAND % command
+
+                        ff.write(command)
                         ff.close()
                         logger.info("Launching %s with command %s" % (entry['name'], entry['command']))
                         sys.exit(0)
