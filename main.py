@@ -1,5 +1,6 @@
 #!/usr/bin/python2
 import sys
+import traceback
 
 from Logger import logger
 from PyMain import PyMain
@@ -17,4 +18,5 @@ try:
             main(None)
 
 except Exception as e:
-    logger.error(str(e))
+    logger.error(e.message)
+    traceback.print_exc()

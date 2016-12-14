@@ -5,10 +5,12 @@ import sys
 import tempfile
 
 import pygame
+from pgu import gui
 from pygame.locals import *
 
 from Constants import *
 from Logger import logger
+from pgu.gui import Theme
 from surfaces.LeftMenu import LeftMenu
 from surfaces.MainArea import MainArea
 from surfaces.StatusBar import StatusBar
@@ -20,6 +22,7 @@ if not pygame.font:
     print 'Warning, fonts disabled'
 if not pygame.mixer:
     print 'Warning, sound disabled'
+
 
 class PyMain(object):
     def __init__(self, configFile):
@@ -66,63 +69,77 @@ class PyMain(object):
             joystick.init()
             logger.info("Found joystick %s" % (joystick.get_name(),))
 
-    def redraw(self):
-        self.screen.fill(self.backgroundColor)
+    def redraw(self, full=True):
+        if full:
+            self.screen.fill(self.backgroundColor)
 
-        if self.backgroundImage:
-            self.screen.blit(self.backgroundImage, self.backgroundImage.get_rect())
+            if self.backgroundImage:
+                self.screen.blit(self.backgroundImage, self.backgroundImage.get_rect())
 
-        self.topMenuSurface.redraw(self.screen, 0, 0)
-        self.leftMenuSurface.redraw(self.screen, 0, TOP_MENU_HEIGHT)
-        self.statusBarSurface.redraw(self.screen, 0, TOP_MENU_HEIGHT + self.leftMenuSurface.get_height())
-        self.mainAreaSurface.redraw(self.screen, LEFT_MENU_WIDTH, TOP_MENU_HEIGHT)
+            self.topMenuSurface.redraw(self.screen, 0, 0)
+            self.leftMenuSurface.redraw(self.screen, 0, TOP_MENU_HEIGHT)
+            self.statusBarSurface.redraw(self.screen, 0, TOP_MENU_HEIGHT + self.leftMenuSurface.get_height())
+            self.mainAreaSurface.redraw(self.screen, LEFT_MENU_WIDTH, TOP_MENU_HEIGHT)
 
+        self.mainAreaSurface.pguApp.paint()
         pygame.display.flip()
 
     def setTopSelected(self, index):
         self.topMenuSurface.setSelected(index)
         self.leftMenuSurface.init(self.jsondata['menus'][index]['entries'])
 
+    def setLeftSelected(self, index):
+        self.leftMenuSurface.setSelected(index)
+
     def loop(self):
         while 1:
-            event = pygame.event.wait()
+            # event = pygame.event.wait()
 
-            # if (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE) \
-            # or (event.type == pygame.JOYBUTTONDOWN and event.button == 1):
-            if (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE) \
-            or (event.type == pygame.QUIT):
-                if os.path.exists(self.temporaryFile):
-                    os.remove(self.temporaryFile)
-                sys.exit(0)
+            fullRedraw = False
+            for event in pygame.event.get():
 
-            elif (event.type == pygame.KEYDOWN and event.key == pygame.K_LEFT) \
-            or (event.type == pygame.JOYBUTTONDOWN and event.button == 11):
-                topMenuIndex = (self.topMenuSurface.getSelected() - 1) % len(self.topMenuSurface.buttons)
-                self.setTopSelected(topMenuIndex)
-                self.redraw()
+                # if (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE) \
+                # or (event.type == pygame.JOYBUTTONDOWN and event.button == 1):
+                if (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE) \
+                        or (event.type == pygame.QUIT):
+                    if os.path.exists(self.temporaryFile):
+                        os.remove(self.temporaryFile)
+                    sys.exit(0)
 
-            elif (event.type == pygame.KEYDOWN and event.key == pygame.K_RIGHT) \
-            or (event.type == pygame.JOYBUTTONDOWN and event.button == 12):
-                topMenuIndex = (self.topMenuSurface.getSelected() + 1) % len(self.topMenuSurface.buttons)
-                self.setTopSelected(topMenuIndex)
-                self.redraw()
+                elif (event.type == pygame.KEYDOWN and event.key == pygame.K_LEFT) \
+                        or (event.type == pygame.JOYBUTTONDOWN and event.button == 11):
+                    topMenuIndex = (self.topMenuSurface.getSelected() - 1) % len(self.topMenuSurface.buttons)
+                    self.setTopSelected(topMenuIndex)
+                    fullRedraw = True
 
-            elif (event.type == pygame.KEYDOWN and event.key == pygame.K_UP) \
-            or (event.type == pygame.JOYBUTTONDOWN and event.button == 13):
-                self.leftMenuSurface.setSelected((self.leftMenuSurface.getSelected() - 1) % len(self.leftMenuSurface.buttons))
-                self.redraw()
+                elif (event.type == pygame.KEYDOWN and event.key == pygame.K_RIGHT) \
+                        or (event.type == pygame.JOYBUTTONDOWN and event.button == 12):
+                    topMenuIndex = (self.topMenuSurface.getSelected() + 1) % len(self.topMenuSurface.buttons)
+                    self.setTopSelected(topMenuIndex)
+                    fullRedraw = True
 
-            elif (event.type == pygame.KEYDOWN and event.key == pygame.K_DOWN) \
-            or (event.type == pygame.JOYBUTTONDOWN and event.button == 14):
-                self.leftMenuSurface.setSelected((self.leftMenuSurface.getSelected() + 1) % len(self.leftMenuSurface.buttons))
-                self.redraw()
+                elif (event.type == pygame.KEYDOWN and event.key == pygame.K_UP) \
+                        or (event.type == pygame.JOYBUTTONDOWN and event.button == 13):
+                    leftMenuIndex = (self.leftMenuSurface.getSelected() - 1) % len(self.leftMenuSurface.buttons)
+                    self.setLeftSelected(leftMenuIndex)
+                    fullRedraw = True
 
-            elif (event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN) \
-            or (event.type == pygame.JOYBUTTONDOWN and event.button == 0):
-                entry = self.leftMenuSurface.data[self.leftMenuSurface.getSelected()]
-                ff = open(self.temporaryFile, 'wb')
-                ff.write(entry['command'])
-                ff.close()
-                logger.info("Launching %s with command %s" % (entry['name'], entry['command']))
-                sys.exit(0)
+                elif (event.type == pygame.KEYDOWN and event.key == pygame.K_DOWN) \
+                        or (event.type == pygame.JOYBUTTONDOWN and event.button == 14):
+                    leftMenuIndex = (self.leftMenuSurface.getSelected() + 1) % len(self.leftMenuSurface.buttons)
+                    self.setLeftSelected(leftMenuIndex)
+                    fullRedraw = True
 
+                elif (event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN) \
+                        or (event.type == pygame.JOYBUTTONDOWN and event.button == 0):
+                    entry = self.leftMenuSurface.data[self.leftMenuSurface.getSelected()]
+                    ff = open(self.temporaryFile, 'wb')
+                    ff.write(entry['command'])
+                    ff.close()
+                    logger.info("Launching %s with command %s" % (entry['name'], entry['command']))
+                    sys.exit(0)
+
+                else:
+                    self.mainAreaSurface.pguApp.event(event)
+
+            self.redraw(full=fullRedraw)
