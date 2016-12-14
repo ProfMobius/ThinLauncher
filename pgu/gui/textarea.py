@@ -40,7 +40,7 @@ class TextArea(widget.Widget):
 ##            self.rect = pygame.Rect(self.rect.x, self.rect.y, width, height)
 ##        return self.rect.w, self.rect.h
         
-    def paint(self,s):
+    def paint(self, s):
         
         # TODO: What's up with this 20 magic number? It's the margin of the left and right sides, but I'm not sure how this should be gotten other than by trial and error.
         max_line_w = self.rect.w - 20

@@ -70,6 +70,9 @@ class PyMain(object):
             logger.info("Found joystick %s" % (joystick.get_name(),))
 
     def redraw(self, full=True):
+        # TODO : The whole concept of only partially redrawing is bad.
+        # TODO : Should try to figure out why redrawing is so expensive
+
         if full:
             self.screen.fill(self.backgroundColor)
 

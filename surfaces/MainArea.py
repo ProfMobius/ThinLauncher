@@ -11,7 +11,7 @@ class MainArea(pygame.Surface):
         self.selected = 0
 
         # pgu init
-        self.pguApp = gui.App(Theme("thinlauncher"))
+        self.pguApp = gui.App(Theme("./assets/themes/thinlauncher"))
         container = gui.Container(align=-1, valign=-1)
         pguTable = gui.Table()
         # pguTable.tr()
