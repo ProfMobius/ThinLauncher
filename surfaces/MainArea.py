@@ -3,6 +3,7 @@ import pygame
 from gui.DummyDisplay import DummyDisplay
 from gui.NetworkDisplay import NetworkDisplay
 from pgu import gui
+from os.path import expanduser
 
 from Constants import *
 from pgu.gui import Theme
@@ -15,7 +16,7 @@ class MainArea(pygame.Surface):
         self.selected = 0
 
         # pgu init
-        self.pguApp = gui.App(Theme("./assets/themes/thinlauncher"))
+        self.pguApp = gui.App(Theme(expanduser("~/.config/thinlauncher/assets/themes/thinlauncher")))
         self.pguContainer = DummyDisplay(LEFT_MENU_WIDTH + MARGIN, TOP_MENU_HEIGHT)
         self.pguApp.init(self.pguContainer)
 
