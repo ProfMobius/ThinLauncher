@@ -44,6 +44,7 @@ class PyMain(object):
 
         self.topMenuSurface.init(self.jsondata['menus'])
         self.setTopSelected(0)
+        self.setLeftSelected(0)
 
         self.redraw()
 
@@ -83,16 +84,19 @@ class PyMain(object):
             self.leftMenuSurface.redraw(self.screen, 0, TOP_MENU_HEIGHT)
             self.statusBarSurface.redraw(self.screen, 0, TOP_MENU_HEIGHT + self.leftMenuSurface.get_height())
             self.mainAreaSurface.redraw(self.screen, LEFT_MENU_WIDTH, TOP_MENU_HEIGHT)
+        else:
+            self.mainAreaSurface.redrawGUI()
 
-        self.mainAreaSurface.pguApp.paint()
         pygame.display.flip()
 
     def setTopSelected(self, index):
         self.topMenuSurface.setSelected(index)
         self.leftMenuSurface.init(self.jsondata['menus'][index]['entries'])
+        self.setLeftSelected(0)
 
     def setLeftSelected(self, index):
         self.leftMenuSurface.setSelected(index)
+        self.mainAreaSurface.init(self.leftMenuSurface.data[index])
 
     def loop(self):
         while 1:
@@ -136,11 +140,18 @@ class PyMain(object):
                 elif (event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN) \
                         or (event.type == pygame.JOYBUTTONDOWN and event.button == 0):
                     entry = self.leftMenuSurface.data[self.leftMenuSurface.getSelected()]
-                    ff = open(self.temporaryFile, 'wb')
-                    ff.write(entry['command'])
-                    ff.close()
-                    logger.info("Launching %s with command %s" % (entry['name'], entry['command']))
-                    sys.exit(0)
+
+                    # We run a command if there is one
+                    if 'command' in entry:
+                        ff = open(self.temporaryFile, 'wb')
+                        ff.write(entry['command'])
+                        ff.close()
+                        logger.info("Launching %s with command %s" % (entry['name'], entry['command']))
+                        sys.exit(0)
+
+                    # If we have a main area GUI, we should activate it and start working on it
+                    if 'mainAreaGUI' in entry:
+                        pass
 
                 else:
                     self.mainAreaSurface.pguApp.event(event)

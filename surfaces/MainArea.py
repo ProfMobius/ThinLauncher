@@ -1,4 +1,7 @@
 import pygame
+
+from gui.DummyDisplay import DummyDisplay
+from gui.NetworkDisplay import NetworkDisplay
 from pgu import gui
 
 from Constants import *
@@ -12,17 +15,21 @@ class MainArea(pygame.Surface):
 
         # pgu init
         self.pguApp = gui.App(Theme("./assets/themes/thinlauncher"))
-        container = gui.Container(align=-1, valign=-1)
-        pguTable = gui.Table()
-        # pguTable.tr()
-        # pguTable.td(gui.Button(value="This is a test"))
-        # pguTable.tr()
-        # pguTable.td(gui.Button(value="This is a test"))
-        pguTable.tr()
-        pguTable.td(gui.TextArea(value="This is a test"))
-        container.add(pguTable, LEFT_MENU_WIDTH, TOP_MENU_HEIGHT)
-        self.pguApp.init(container)
+        self.pguContainer = DummyDisplay(LEFT_MENU_WIDTH, TOP_MENU_HEIGHT)
+        self.pguApp.init(self.pguContainer)
+
+    def init(self, data):
+        if 'mainAreaGUI' in data:
+            self.pguContainer = eval(data['mainAreaGUI'])(LEFT_MENU_WIDTH, TOP_MENU_HEIGHT)
+        else:
+            self.pguContainer = DummyDisplay(LEFT_MENU_WIDTH, TOP_MENU_HEIGHT)
+
+        self.pguApp.init(self.pguContainer)
 
     def redraw(self, screen, x, y):
         self.fill((150, 150, 255, 100))
         screen.blit(self, self.get_rect(x=x, y=y))
+        self.redrawGUI()
+
+    def redrawGUI(self):
+        self.pguApp.paint()
