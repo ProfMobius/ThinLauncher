@@ -11,6 +11,7 @@ from .const import *
 from . import widget
 from .errors import PguError
 
+
 #############
 # Functions #
 #############
@@ -37,6 +38,7 @@ def parse_color(desc):
 
     return pygame.Color(desc)
 
+
 # Determines if the given object is a pygame-compatible color or not
 def is_color(col):
     # In every version of pygame (up to 1.8.1 so far) will interpret
@@ -50,6 +52,7 @@ def is_color(col):
     # Otherwise, this version of pygame only supports tuple colors
     return False
 
+
 ###########
 # Classes #
 ###########
@@ -57,10 +60,10 @@ def is_color(col):
 class Spacer(widget.Widget):
     """An invisible space widget."""
 
-    def __init__(self,width,height,**params):
-        params.setdefault('focusable',False)
-        widget.Widget.__init__(self,width=width,height=height,**params)
-        
+    def __init__(self, width, height, **params):
+        params.setdefault('focusable', False)
+        widget.Widget.__init__(self, width=width, height=height, **params)
+
 
 class Color(widget.Widget):
     """A widget that renders as a solid block of color.
@@ -76,14 +79,14 @@ class Color(widget.Widget):
 
     # The pygame Color instance
     _value = None
-    
-    def __init__(self,value=None,**params):
-        params.setdefault('focusable',False)
-        if value != None: params['value']=value
-        widget.Widget.__init__(self,**params)
-    
-    def paint(self,s):
-        if hasattr(self,'value') and is_color(self.value): 
+
+    def __init__(self, value=None, **params):
+        params.setdefault('focusable', False)
+        if value != None: params['value'] = value
+        widget.Widget.__init__(self, **params)
+
+    def paint(self, s):
+        if hasattr(self, 'value') and is_color(self.value):
             s.fill(self.value)
 
     @property
@@ -101,7 +104,7 @@ class Color(widget.Widget):
             # Emit a change signal
             self.send(CHANGE)
             self.repaint()
-    
+
 
 class Label(widget.Widget):
     """A text label widget."""
@@ -113,11 +116,11 @@ class Label(widget.Widget):
         self.style.check("font")
         self.value = value
         self.style.width, self.style.height = self.font.size(self.value)
-    
-    def paint(self,s):
+
+    def paint(self, s):
         """Renders the label onto the given surface in the upper-left corner."""
-        #s.blit(self.font.render(self.value, 1, self.style.color),(0,0))
-        s.blit(self.style.font.render(self.value, 1, self.style.color),(0,0))
+        # s.blit(self.font.render(self.value, 1, self.style.color),(0,0))
+        s.blit(self.style.font.render(self.value, 1, self.style.color), (0, 0))
 
     def set_text(self, txt):
         """Set the text of this label."""
@@ -129,7 +132,7 @@ class Label(widget.Widget):
         """Set the font used to render this label. Obsolete: use label.font instead"""
         self.font = font
 
-    def resize(self,width=None,height=None):
+    def resize(self, width=None, height=None):
         # Calculate the size of the rendered text
         (self.style.width, self.style.height) = self.font.size(self.value)
         return (self.style.width, self.style.height)
@@ -144,12 +147,13 @@ class Label(widget.Widget):
         # Signal to the application that we need a resize
         self.chsize()
 
+
 class Image(widget.Widget):
     """An image widget. The constructor takes a file name or a pygame surface."""
 
-    def __init__(self,value,**params):
-        params.setdefault('focusable',False)
-        widget.Widget.__init__(self,**params)
+    def __init__(self, value, **params):
+        params.setdefault('focusable', False)
+        widget.Widget.__init__(self, **params)
 
         if (not value):
             raise PguError("Image widget takes a path or pygame surface as first argument")
@@ -160,21 +164,20 @@ class Image(widget.Widget):
             if (not value):
                 raise PguError("Cannot load the image '%s'" % value)
 
-        ow,oh = iw,ih = value.get_width(),value.get_height()
-        sw,sh = self.style.width,self.style.height
-        
-        if sw and not sh:
-            iw,ih = sw,ih*sw/iw
-        elif sh and not sw:
-            iw,ih = iw*sh/ih,sh
-        elif sw and sh:
-            iw,ih = sw,sh
-        
-        if (ow,oh) != (iw,ih):
-            value = pygame.transform.scale(value,(iw,ih))
-        self.style.width,self.style.height = iw,ih
-        self.value = value
-    
-    def paint(self,s):
-        s.blit(self.value,(0,0))
+        ow, oh = iw, ih = value.get_width(), value.get_height()
+        sw, sh = self.style.width, self.style.height
 
+        if sw and not sh:
+            iw, ih = sw, ih * sw / iw
+        elif sh and not sw:
+            iw, ih = iw * sh / ih, sh
+        elif sw and sh:
+            iw, ih = sw, sh
+
+        if (ow, oh) != (iw, ih):
+            value = pygame.transform.scale(value, (iw, ih))
+        self.style.width, self.style.height = iw, ih
+        self.value = value
+
+    def paint(self, s):
+        s.blit(self.value, (0, 0))

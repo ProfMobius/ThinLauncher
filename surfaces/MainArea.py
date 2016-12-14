@@ -7,6 +7,7 @@ from pgu import gui
 from Constants import *
 from pgu.gui import Theme
 
+MARGIN = 10
 
 class MainArea(pygame.Surface):
     def __init__(self, w, h):
@@ -15,14 +16,15 @@ class MainArea(pygame.Surface):
 
         # pgu init
         self.pguApp = gui.App(Theme("./assets/themes/thinlauncher"))
-        self.pguContainer = DummyDisplay(LEFT_MENU_WIDTH, TOP_MENU_HEIGHT)
+        self.pguContainer = DummyDisplay(LEFT_MENU_WIDTH + MARGIN, TOP_MENU_HEIGHT)
         self.pguApp.init(self.pguContainer)
 
     def init(self, data):
         if 'mainAreaGUI' in data:
-            self.pguContainer = eval(data['mainAreaGUI'])(LEFT_MENU_WIDTH, TOP_MENU_HEIGHT)
+            # TODO : We might want to use a table instead of an eval so we have proper import handling
+            self.pguContainer = eval(data['mainAreaGUI'])(LEFT_MENU_WIDTH + MARGIN, TOP_MENU_HEIGHT)
         else:
-            self.pguContainer = DummyDisplay(LEFT_MENU_WIDTH, TOP_MENU_HEIGHT)
+            self.pguContainer = DummyDisplay(LEFT_MENU_WIDTH + MARGIN, TOP_MENU_HEIGHT)
 
         self.pguApp.init(self.pguContainer)
 
