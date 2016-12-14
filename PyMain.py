@@ -5,6 +5,8 @@ import sys
 import tempfile
 
 import pygame
+import subprocess
+
 from pgu import gui
 from pygame.locals import *
 
@@ -100,6 +102,12 @@ class PyMain(object):
         self.leftMenuSurface.setSelected(index)
         self.mainAreaSurface.init(self.leftMenuSurface.data[index])
 
+    def writeCommand(self, entry, command):
+        ff = open(self.temporaryFile, 'wb')
+        ff.write(command)
+        ff.close()
+        logger.info("Launching %s with command %s" % (entry['name'], command))
+
     def loop(self):
         while 1:
             # event = pygame.event.wait()
@@ -145,18 +153,15 @@ class PyMain(object):
 
                     # We run a command if there is one
                     if 'command' in entry:
-                        ff = open(self.temporaryFile, 'wb')
-
                         command = entry['command']
                         if command[0] == '#':
-                            command = command[1:]
+                            self.writeCommand(entry, command[1:])
+                            sys.exit(0)
+                        elif command[0] == '$':
+                            subprocess.call(command[1:], shell=True)
                         else:
-                            command = BASE_COMMAND % command
-
-                        ff.write(command)
-                        ff.close()
-                        logger.info("Launching %s with command %s" % (entry['name'], entry['command']))
-                        sys.exit(0)
+                            self.writeCommand(entry, BASE_COMMAND % command)
+                            sys.exit(0)
 
                     # If we have a main area GUI, we should activate it and start working on it
                     if 'mainAreaGUI' in entry:
