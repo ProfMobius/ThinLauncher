@@ -9,8 +9,8 @@ from pgu.gui import Theme
 
 
 class MainArea(pygame.Surface):
-    def __init__(self, h, w):
-        super(MainArea, self).__init__((h, w), pygame.SRCALPHA)
+    def __init__(self, w, h):
+        super(MainArea, self).__init__((w, h), pygame.SRCALPHA)
         self.selected = 0
 
         # pgu init

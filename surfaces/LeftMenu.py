@@ -4,8 +4,8 @@ from Label import Label
 
 
 class LeftMenu(pygame.Surface):
-    def __init__(self, h, w):
-        super(LeftMenu, self).__init__((h, w), pygame.SRCALPHA)
+    def __init__(self, w, h):
+        super(LeftMenu, self).__init__((w, h), pygame.SRCALPHA)
         self.selected = 0
         self.buttons = []
         self.data = None

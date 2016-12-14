@@ -3,8 +3,8 @@ from Constants import *
 
 
 class StatusBar(pygame.Surface):
-    def __init__(self, h, w):
-        super(StatusBar, self).__init__((h, w), pygame.SRCALPHA)
+    def __init__(self, w, h):
+        super(StatusBar, self).__init__((w, h), pygame.SRCALPHA)
 
     def redraw(self, screen, x, y):
         self.fill((150, 150, 150, 150))
