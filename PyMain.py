@@ -1,5 +1,6 @@
 import json
 import os
+import re
 import shutil
 import sys
 import tempfile
@@ -33,6 +34,7 @@ class PyMain(object):
         pygame.init()
         logger.info("Using driver : " + pygame.display.get_driver())
 
+        self.disableMouse()
         self.initSurfaces()
         self.initJoysticks()
 
@@ -51,6 +53,13 @@ class PyMain(object):
         self.setLeftSelected(0)
 
         self.redraw()
+
+    def disableMouse(self):
+        devices = subprocess.check_output(["xinput"]).splitlines()
+        for line in devices:
+            if '[master pointer' in line or '[slave pointer' in line:
+                deviceID = re.findall("id=([0-9]+)", line)[0]
+                subprocess.call(["xinput", "disable", deviceID])
 
     def initSurfaces(self):
         self.screen = pygame.display.set_mode((SCREEN_RES_X, SCREEN_RES_Y), SRCALPHA)
