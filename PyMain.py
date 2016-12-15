@@ -57,8 +57,10 @@ class PyMain(object):
     def disableMouse(self):
         devices = subprocess.check_output(["xinput"]).splitlines()
         for line in devices:
-            if '[master pointer' in line or '[slave pointer' in line:
+            logger.debug(line)
+            if re.search("(master|slave)\s*pointer", line):
                 deviceID = re.findall("id=([0-9]+)", line)[0]
+                logger.info("Trying to disable device %s" % deviceID)
                 subprocess.call(["xinput", "disable", deviceID])
 
     def initSurfaces(self):
