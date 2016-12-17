@@ -1,3 +1,5 @@
+#!/usr/bin/python2
+
 import tempfile
 import urllib
 import sys
