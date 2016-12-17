@@ -34,7 +34,7 @@ class PyMain(object):
         pygame.init()
         logger.info("Using driver : " + pygame.display.get_driver())
 
-        self.disableMouse()
+        #self.disableMouse()
         self.initSurfaces()
         self.initJoysticks()
 
