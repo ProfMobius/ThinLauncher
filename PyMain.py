@@ -4,7 +4,7 @@ import re
 import shutil
 import sys
 import tempfile
-
+import time
 import pygame
 import subprocess
 
@@ -182,3 +182,4 @@ class PyMain(object):
                     self.mainAreaSurface.pguApp.event(event)
 
             self.redraw(full=fullRedraw)
+            time.sleep(0.001)
