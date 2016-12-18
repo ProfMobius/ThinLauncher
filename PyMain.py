@@ -34,7 +34,7 @@ class PyMain(object):
         pygame.init()
         logger.info("Using driver : " + pygame.display.get_driver())
 
-        #self.disableMouse()
+        # self.disableMouse()
         self.initSurfaces()
         self.initJoysticks()
 
@@ -85,22 +85,19 @@ class PyMain(object):
             joystick.init()
             logger.info("Found joystick %s" % (joystick.get_name(),))
 
-    def redraw(self, full=True):
+    def redraw(self):
         # TODO : The whole concept of only partially redrawing is bad.
         # TODO : Should try to figure out why redrawing is so expensive
 
-        if full:
-            self.screen.fill(self.backgroundColor)
+        self.screen.fill(self.backgroundColor)
 
-            if self.backgroundImage:
-                self.screen.blit(self.backgroundImage, self.backgroundImage.get_rect())
+        if self.backgroundImage:
+            self.screen.blit(self.backgroundImage, self.backgroundImage.get_rect())
 
-            self.topMenuSurface.redraw(self.screen, 0, 0)
-            self.leftMenuSurface.redraw(self.screen, 0, TOP_MENU_HEIGHT)
-            self.statusBarSurface.redraw(self.screen, 0, TOP_MENU_HEIGHT + self.leftMenuSurface.get_height())
-            self.mainAreaSurface.redraw(self.screen, LEFT_MENU_WIDTH, TOP_MENU_HEIGHT)
-        else:
-            self.mainAreaSurface.redrawGUI()
+        self.topMenuSurface.redraw(self.screen, 0, 0)
+        self.leftMenuSurface.redraw(self.screen, 0, TOP_MENU_HEIGHT)
+        self.statusBarSurface.redraw(self.screen, 0, TOP_MENU_HEIGHT + self.leftMenuSurface.get_height())
+        self.mainAreaSurface.redraw(self.screen, LEFT_MENU_WIDTH, TOP_MENU_HEIGHT)
 
         pygame.display.flip()
 
@@ -121,65 +118,56 @@ class PyMain(object):
 
     def loop(self):
         while 1:
-            # event = pygame.event.wait()
+            event = pygame.event.wait()
 
-            fullRedraw = False
-            for event in pygame.event.get():
+            # if (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE) \
+            # or (event.type == pygame.JOYBUTTONDOWN and event.button == 1):
+            if (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE) \
+                    or (event.type == pygame.QUIT):
+                if os.path.exists(self.temporaryFile):
+                    os.remove(self.temporaryFile)
+                sys.exit(0)
 
-                # if (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE) \
-                # or (event.type == pygame.JOYBUTTONDOWN and event.button == 1):
-                if (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE) \
-                        or (event.type == pygame.QUIT):
-                    if os.path.exists(self.temporaryFile):
-                        os.remove(self.temporaryFile)
-                    sys.exit(0)
+            elif (event.type == pygame.KEYDOWN and event.key == pygame.K_LEFT) \
+                    or (event.type == pygame.JOYBUTTONDOWN and event.button == 11):
+                topMenuIndex = (self.topMenuSurface.getSelected() - 1) % len(self.topMenuSurface.buttons)
+                self.setTopSelected(topMenuIndex)
+                self.redraw()
 
-                elif (event.type == pygame.KEYDOWN and event.key == pygame.K_LEFT) \
-                        or (event.type == pygame.JOYBUTTONDOWN and event.button == 11):
-                    topMenuIndex = (self.topMenuSurface.getSelected() - 1) % len(self.topMenuSurface.buttons)
-                    self.setTopSelected(topMenuIndex)
-                    fullRedraw = True
+            elif (event.type == pygame.KEYDOWN and event.key == pygame.K_RIGHT) \
+                    or (event.type == pygame.JOYBUTTONDOWN and event.button == 12):
+                topMenuIndex = (self.topMenuSurface.getSelected() + 1) % len(self.topMenuSurface.buttons)
+                self.setTopSelected(topMenuIndex)
+                self.redraw()
 
-                elif (event.type == pygame.KEYDOWN and event.key == pygame.K_RIGHT) \
-                        or (event.type == pygame.JOYBUTTONDOWN and event.button == 12):
-                    topMenuIndex = (self.topMenuSurface.getSelected() + 1) % len(self.topMenuSurface.buttons)
-                    self.setTopSelected(topMenuIndex)
-                    fullRedraw = True
+            elif (event.type == pygame.KEYDOWN and event.key == pygame.K_UP) \
+                    or (event.type == pygame.JOYBUTTONDOWN and event.button == 13):
+                leftMenuIndex = (self.leftMenuSurface.getSelected() - 1) % len(self.leftMenuSurface.buttons)
+                self.setLeftSelected(leftMenuIndex)
+                self.redraw()
 
-                elif (event.type == pygame.KEYDOWN and event.key == pygame.K_UP) \
-                        or (event.type == pygame.JOYBUTTONDOWN and event.button == 13):
-                    leftMenuIndex = (self.leftMenuSurface.getSelected() - 1) % len(self.leftMenuSurface.buttons)
-                    self.setLeftSelected(leftMenuIndex)
-                    fullRedraw = True
+            elif (event.type == pygame.KEYDOWN and event.key == pygame.K_DOWN) \
+                    or (event.type == pygame.JOYBUTTONDOWN and event.button == 14):
+                leftMenuIndex = (self.leftMenuSurface.getSelected() + 1) % len(self.leftMenuSurface.buttons)
+                self.setLeftSelected(leftMenuIndex)
+                self.redraw()
 
-                elif (event.type == pygame.KEYDOWN and event.key == pygame.K_DOWN) \
-                        or (event.type == pygame.JOYBUTTONDOWN and event.button == 14):
-                    leftMenuIndex = (self.leftMenuSurface.getSelected() + 1) % len(self.leftMenuSurface.buttons)
-                    self.setLeftSelected(leftMenuIndex)
-                    fullRedraw = True
+            elif (event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN) \
+                    or (event.type == pygame.JOYBUTTONDOWN and event.button == 0):
+                entry = self.leftMenuSurface.data[self.leftMenuSurface.getSelected()]
 
-                elif (event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN) \
-                        or (event.type == pygame.JOYBUTTONDOWN and event.button == 0):
-                    entry = self.leftMenuSurface.data[self.leftMenuSurface.getSelected()]
+                # We run a command if there is one
+                if 'command' in entry:
+                    command = entry['command']
+                    if command[0] == '#':
+                        self.writeCommand(entry, command[1:])
+                        sys.exit(0)
+                    elif command[0] == '$':
+                        subprocess.call(command[1:], shell=True)
+                    else:
+                        self.writeCommand(entry, BASE_COMMAND % command)
+                        sys.exit(0)
 
-                    # We run a command if there is one
-                    if 'command' in entry:
-                        command = entry['command']
-                        if command[0] == '#':
-                            self.writeCommand(entry, command[1:])
-                            sys.exit(0)
-                        elif command[0] == '$':
-                            subprocess.call(command[1:], shell=True)
-                        else:
-                            self.writeCommand(entry, BASE_COMMAND % command)
-                            sys.exit(0)
-
-                    # If we have a main area GUI, we should activate it and start working on it
-                    if 'mainAreaGUI' in entry:
-                        pass
-
-                else:
-                    self.mainAreaSurface.pguApp.event(event)
-
-            self.redraw(full=fullRedraw)
-            time.sleep(0.001)
+                # If we have a main area GUI, we should activate it and start working on it
+                if 'mainAreaGUI' in entry:
+                    pass
